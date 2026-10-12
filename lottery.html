@@ -502,3 +502,13 @@ document.getElementById("start").addEventListener("click", async () => {
   });
 });
 </script>
+/* ▼ スタッフ確認（パスワード無し） */
+document.getElementById("staffConfirm").addEventListener("click", async () => {
+  const entryNumber = await getNextEntryNumber();
+  await addDoc(collection(db,"result"),{
+    prize: document.getElementById("result").textContent.replace("🎉 抽選結果： ",""),
+    entryNumber,
+    timestamp: new Date()
+  });
+  alert("説明員が確認しました（番号: " + entryNumber + "）");
+});
