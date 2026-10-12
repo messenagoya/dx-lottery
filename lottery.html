@@ -1,14 +1,17 @@
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
 <title>抽選ページ</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-body { font-family: system-ui; text-align:center; background:#e6f4ff; }
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #eef7ff;
+  padding: 20px;
+}
 
-/* ▼ ボタン */
 button {
-  font-size: 26px;
   padding: 20px 45px;
   border-radius: 14px;
   border: none;
@@ -20,12 +23,6 @@ button {
   transition: transform 0.1s ease;
 }
 button:hover { transform: scale(1.05); }
-
-#staffConfirm {
-  background: #28a745;
-  display:none;
-  margin-top: 20px;
-}
 
 /* ▼ ルーレット */
 .rouletteContainer {
@@ -86,40 +83,6 @@ button:hover { transform: scale(1.05); }
 .spinAnim { animation:reelSpin 0.18s linear infinite; }
 @keyframes reelSpin { 0%{transform:translateY(0);} 100%{transform:translateY(-15px);} }
 
-/* ▼ あみだくじ */
-#amidakujiCanvas {
-  border:2px solid #aaa;
-  margin:20px auto;
-  display:none;
-  background:#fff;
-}
-.amidGoals {
-  display:none;
-  justify-content:space-between;
-  width:320px;
-  margin:8px auto;
-}
-.amidGoalIcon {
-  width:55px; height:32px; border-radius:8px;
-  background:radial-gradient(circle,#fff,#ddd,#999);
-  display:flex; align-items:center; justify-content:center; font-size:10px;
-}
-
-/* ▼ 景品ラベル点滅 */
-@keyframes goalBlink {
-  0% { opacity: 1; }
-  50% { opacity: 0.2; }
-  100% { opacity: 1; }
-}
-
-/* ▼ 結果ポップ */
-.resultPop { animation:popResult 0.6s ease-out; }
-@keyframes popResult {
-  0%{transform:scale(0.2);opacity:0;}
-  60%{transform:scale(1.2);opacity:1;}
-  100%{transform:scale(1);}
-}
-
 /* ▼ ガチャガチャ */
 .gachaMachine {
   width: 260px;
@@ -127,7 +90,6 @@ button:hover { transform: scale(1.05); }
   margin: 20px auto;
   position: relative;
 }
-
 .gachaDome {
   width: 200px;
   height: 200px;
@@ -137,14 +99,12 @@ button:hover { transform: scale(1.05); }
   position: relative;
   overflow: hidden;
 }
-
 #gachaCapsules .capsule {
   width: 30px;
   height: 30px;
   border-radius: 50%;
   position: absolute;
 }
-
 .gachaExit {
   width: 80px;
   height: 40px;
@@ -152,6 +112,7 @@ button:hover { transform: scale(1.05); }
   margin: 10px auto;
   border-radius: 10px;
 }
+
 /* ▼ 福引き */
 .fukubikiMachine {
   width: 260px;
@@ -159,7 +120,6 @@ button:hover { transform: scale(1.05); }
   margin: 20px auto;
   position: relative;
 }
-
 .fukubikiBody {
   width: 200px;
   height: 200px;
@@ -169,14 +129,12 @@ button:hover { transform: scale(1.05); }
   position: relative;
   overflow: hidden;
 }
-
 #fukubikiBalls .ball {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   position: absolute;
 }
-
 .fukubikiHandle {
   width: 40px;
   height: 40px;
@@ -184,7 +142,6 @@ button:hover { transform: scale(1.05); }
   border-radius: 50%;
   margin: 10px auto;
 }
-
 .fukubikiExit {
   width: 80px;
   height: 40px;
@@ -218,20 +175,7 @@ button:hover { transform: scale(1.05); }
   <div class="reel" id="reel3">★</div>
 </div>
 
-<!-- ▼ あみだくじ -->
-<canvas id="amidakujiCanvas" width="320" height="300"></canvas>
-<div class="amidGoals">
-  <div class="amidGoalIcon" id="goal0"></div>
-  <div class="amidGoalIcon" id="goal1"></div>
-  <div class="amidGoalIcon" id="goal2"></div>
-  <div class="amidGoalIcon" id="goal3"></div>
-  <div class="amidGoalIcon" id="goal4"></div>
-</div>
-
 <div id="hotBanner">🔥 激熱チャンス！残りわずか！ 🔥</div>
-<div id="rareBanner">🎉 超レア景品当選！ 🎉</div>
-
-<button id="staffConfirm">説明員が確認しました</button>
 
 <!-- ▼ ガチャガチャ -->
 <div id="gachaEffect" style="display:none;">
@@ -258,7 +202,7 @@ button:hover { transform: scale(1.05); }
 <script type="module">
 /* ▼ Firebase */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, doc, updateDoc, getDoc, addDoc, setDoc }
+import { getFirestore, collection, doc, getDoc, addDoc, runTransaction }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -272,38 +216,56 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ▼ 在庫管理 */
-async function getStock(id){ const s=await getDoc(doc(db,"stock",id)); return s.exists()?s.data().count:0; }
-async function decreaseStock(id){
-  const r=doc(db,"stock",id); const s=await getDoc(r);
-  if(s.exists() && s.data().count>0){ await updateDoc(r,{count:s.data().count-1}); return true; }
-  return false;
+/* ▼ 在庫取得 */
+async function getStock(id){
+  const s = await getDoc(doc(db,"stock",id));
+  return s.exists()? s.data().count : 0;
+}
+
+/* ▼ 在庫トランザクション（安全版） */
+async function decreaseStockSafe(id){
+  const ref = doc(db,"stock",id);
+  return await runTransaction(db, async (t)=>{
+    const snap = await t.get(ref);
+    if(!snap.exists()) return false;
+    const count = snap.data().count;
+    if(count <= 0) return false;
+    t.update(ref,{count:count-1});
+    return true;
+  });
 }
 
 /* ▼ 激熱バナー */
 async function checkHot(id){
-  const stock=await getStock(id);
-  const b=document.getElementById("hotBanner");
-  if(stock<=10 && stock>5){ b.textContent="🔥 激熱チャンス！残りわずか！ 🔥"; b.style.display="block"; setTimeout(()=>b.style.display="none",1500); }
-  else if(stock<=5 && stock>1){ b.textContent="🔥🔥 超激熱！残り5以下！ 🔥🔥"; b.style.display="block"; setTimeout(()=>b.style.display="none",2000); }
-  else if(stock===1){ b.textContent="✨✨ ラスト1！超プレミア！ ✨✨"; b.style.display="block"; setTimeout(()=>b.style.display="none",2500); }
+  const stock = await getStock(id);
+  const b = document.getElementById("hotBanner");
+
+  if(stock<=10 && stock>5){
+    b.textContent="🔥 激熱チャンス！残りわずか！ 🔥";
+    b.style.display="block";
+    setTimeout(()=>b.style.display="none",1500);
+  } else if(stock<=5 && stock>1){
+    b.textContent="🔥🔥 超激熱！残り5以下！ 🔥🔥";
+    b.style.display="block";
+    setTimeout(()=>b.style.display="none",2000);
+  } else if(stock===1){
+    b.textContent="✨✨ ラスト1！超プレミア！ ✨✨";
+    b.style.display="block";
+    setTimeout(()=>b.style.display="none",2500);
+  }
 }
 
 /* ▼ 全演出非表示 */
 function hideAllEffects(){
   document.getElementById("rouletteBox").style.display="none";
   document.getElementById("slotBox").style.display="none";
-  document.getElementById("amidakujiCanvas").style.display="none";
   document.querySelector(".roulettePointer").style.display="none";
-  document.querySelector(".amidGoals").style.display="none";
   document.getElementById("rouletteCenter").style.display="none";
-
   document.getElementById("gachaEffect").style.display="none";
   document.getElementById("fukubikiEffect").style.display="none";
-
 }
 
-/* ▼ ルーレット（矢印修正＋当たり光＋中央に景品表示） */
+/* ▼ ルーレット */
 function playRouletteVegas(prize){
   hideAllEffects();
   const wheel=document.getElementById("rouletteWheel");
@@ -312,7 +274,6 @@ function playRouletteVegas(prize){
 
   document.getElementById("rouletteBox").style.display="block";
   document.querySelector(".roulettePointer").style.display="block";
-
   result.innerHTML="🎰 ルーレット回転中…";
 
   const angles={
@@ -323,6 +284,7 @@ function playRouletteVegas(prize){
     "SDカード型付箋":270,
     "景品終了":330
   };
+
   const target=angles[prize] ?? Math.floor(Math.random()*360);
 
   wheel.style.transition="none";
@@ -336,18 +298,14 @@ function playRouletteVegas(prize){
 
     setTimeout(()=>{
       result.innerHTML="🎉 抽選結果： "+prize;
-      result.classList.add("resultPop");
-
       wheel.style.boxShadow="0 -35px 25px gold";
-
-      center.textContent=prize;   /* ← 中央に景品名表示 */
+      center.textContent=prize;
       center.style.display="block";
-
     },4500);
   },50);
 }
 
-/* ▼ スロット（本物の停止演出：ガッガッガッ → カチッ） */
+/* ▼ スロット */
 function playSlotEffect(prize){
   hideAllEffects();
   const r1=document.getElementById("reel1");
@@ -360,14 +318,11 @@ function playSlotEffect(prize){
 
   const sym=["7","BAR","★"];
 
-  function spin(reel){
-    reel.classList.add("spinAnim");
-  }
+  function spin(reel){ reel.classList.add("spinAnim"); }
+
   function stopReel(reel,time){
     setTimeout(()=>{
       reel.classList.remove("spinAnim");
-
-      /* ガッガッガッ揺れ演出 */
       let shakes=0;
       const shakeInt=setInterval(()=>{
         reel.style.transform=`translateY(${(shakes%2===0)?'-10px':'10px'})`;
@@ -383,184 +338,16 @@ function playSlotEffect(prize){
   }
 
   spin(r1); spin(r2); spin(r3);
-
   stopReel(r1,1600);
   stopReel(r2,2200);
   stopReel(r3,2800);
 
   setTimeout(()=>{
     result.innerHTML="🎉 抽選結果： "+prize;
-    result.classList.add("resultPop");
   },3000);
 }
 
-/* ▼ あみだくじ（結果連動＋赤線＋景品ラベルだけ点滅） */
-const prizeNames=["マイクロSDカード","水筒","トートバッグ","SDカード型メモ","SDカード型付箋"];
-
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-
-function setupAmidGoals(){
-  const s=shuffle([...prizeNames]);
-  for(let i=0;i<5;i++) document.getElementById("goal"+i).textContent=s[i];
-  return s;
-}
-
-function generateBars(cols,h){
-  const bars=[];
-  for(let i=0;i<12;i++){
-    bars.push({ y:Math.floor(Math.random()*(h-40))+20, fromCol:Math.floor(Math.random()*(cols-1)) });
-  }
-  return bars.sort((a,b)=>a.y-b.y);
-}
-
-function drawBase(ctx,cols,w,h,bars){
-  ctx.clearRect(0,0,w,h);
-  ctx.strokeStyle="#444"; ctx.lineWidth=3;
-  const colX=[];
-  for(let i=0;i<cols;i++){
-    const x=30+i*((w-60)/(cols-1));
-    colX.push(x);
-    ctx.beginPath(); ctx.moveTo(x,10); ctx.lineTo(x,h-10); ctx.stroke();
-  }
-  for(const bar of bars){
-    ctx.beginPath();
-    ctx.moveTo(colX[bar.fromCol],bar.y);
-    ctx.lineTo(colX[bar.fromCol+1],bar.y);
-    ctx.stroke();
-  }
-  return colX;
-}
-
-function playAmidakujiEffect(prize){
-  hideAllEffects();
-
-  const canvas=document.getElementById("amidakujiCanvas");
-  const ctx=canvas.getContext("2d");
-  const result=document.getElementById("result");
-
-  canvas.style.display="block";
-  document.querySelector(".amidGoals").style.display="flex";
-
-  result.innerHTML="🎯 あみだくじ進行中…";
-
-  const w=canvas.width, h=canvas.height, cols=5;
-  const goals=setupAmidGoals();
-  const prizeIndex=goals.indexOf(prize); /* ← 結果とゴール完全連動 */
-
-  const bars=generateBars(cols,h);
-  const colX=drawBase(ctx,cols,w,h,bars);
-
-  ctx.strokeStyle="#ff0000"; /* ← 赤線 */
-  ctx.lineWidth=4;
-
-  let col=prizeIndex;
-  let y=10;
-
-  const interval=setInterval(()=>{
-    ctx.beginPath(); ctx.moveTo(colX[col],y); y+=2; ctx.lineTo(colX[col],y); ctx.stroke();
-
-    for(const bar of bars){
-      if(Math.abs(bar.y-y)<4){
-        ctx.beginPath();
-        if(bar.fromCol===col){
-          ctx.moveTo(colX[col],y); ctx.lineTo(colX[col+1],y); ctx.stroke();
-          col++;
-        } else if(bar.fromCol+1===col){
-          ctx.moveTo(colX[col],y); ctx.lineTo(colX[col-1],y); ctx.stroke();
-          col--;
-        }
-      }
-    }
-
-    if(y>=h-10){
-      clearInterval(interval);
-
-      /* 景品ラベルだけ点滅 */
-      const goalLabel=document.getElementById("goal"+col);
-      goalLabel.style.animation="goalBlink 0.8s infinite";
-
-      setTimeout(()=>{
-        goalLabel.style.animation="none";
-
-        result.innerHTML="🎉 抽選結果： "+prize;
-        result.classList.add("resultPop");
-
-        document.querySelector(".amidGoals").style.display="none";
-      },5000);
-    }
-  },80);
-}
-
-
-/* ▼ 抽選ボタン */
-document.getElementById("start").addEventListener("click", async () => {
-  localStorage.removeItem("lastDocId");
-
-  // ▼ 在庫がある景品だけを抽選候補に入れる
-  const candidates = [];
-
-  if (await getStock("microSD") > 0) candidates.push("マイクロSDカード");
-  if (await getStock("bottle") > 0) candidates.push("水筒");
-  if (await getStock("tote") > 0) candidates.push("トートバッグ");
-  if (await getStock("memo500") > 0) candidates.push("SDカード型メモ");
-  if (await getStock("memo100") > 0) candidates.push("SDカード型付箋");
-
-  let prize = "";
-
-  // ▼ 在庫が全て 0 の場合
-  if (candidates.length === 0) {
-    prize = "景品終了";
-  } else {
-    // ▼ 在庫がある景品からランダムに選ぶ
-    prize = candidates[Math.floor(Math.random() * candidates.length)];
-
-    // ▼ 選んだ景品の在庫を減らす
-    const stockIdMap = {
-      "マイクロSDカード": "microSD",
-      "水筒": "bottle",
-      "トートバッグ": "tote",
-      "SDカード型メモ": "memo500",
-      "SDカード型付箋": "memo100"
-    };
-
-    await decreaseStock(stockIdMap[prize]);
-    await checkHot(stockIdMap[prize]);
-  }
-
-  // ▼ ランダム演出
-  playRandomEffect(prize);
-
-  // ▼ スタッフ確認ボタン表示
-  document.getElementById("staffConfirm").style.display = "block";
-
-  // ▼ Firestore 保存
-  const newDoc = await addDoc(collection(db, "survey"), {
-    prize,
-    received: "no",
-    entryNumber: null,
-    timestamp: new Date()
-  });
-
-  localStorage.setItem("lastDocId", newDoc.id);
-});
-
-
-
-/* ▼ スタッフ確認 */
-document.getElementById("staffConfirm").addEventListener("click",async()=>{
-  const code=prompt("スタッフ確認コードを入力してください:");
-  if(code!=="o") return alert("コードが違います");
-
-  const docRef=doc(db,"survey",localStorage.getItem("lastDocId"));
-  const counterRef=doc(db,"meta","entryCounter");
-  const snap=await getDoc(counterRef);
-  const num=snap.exists()?snap.data().lastNumber+1:1;
-
-  await setDoc(counterRef,{lastNumber:num});
-  await updateDoc(docRef,{received:"yes",entryNumber:num});
-});
-
-/* ▼▼▼ ガチャガチャ・福引き用カラー変換 ▼▼▼ */
+/* ▼ ガチャガチャ完全版 */
 const prizeColorMap = {
   microSD: "red",
   bottle: "blue",
@@ -569,7 +356,6 @@ const prizeColorMap = {
   memo100: "white"
 };
 
-/* ▼▼▼ ガチャガチャ演出 ▼▼▼ */
 function playGachagachaEffect(prize){
   hideAllEffects();
   const box=document.getElementById("gachaEffect");
@@ -578,41 +364,34 @@ function playGachagachaEffect(prize){
   const area=document.getElementById("gachaCapsules");
   area.innerHTML="";
 
-  const color=prizeColorMap[{
-    "マイクロSDカード":"microSD",
-    "水筒":"bottle",
-    "トートバッグ":"tote",
-    "SDカード型メモ":"memo500",
-    "SDカード型付箋":"memo100"
-  }[prize]];
+  const color=prizeColorMap[
+    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
+      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
+  ];
 
-  // カプセル生成
   for(let i=0;i<8;i++){
     const c=document.createElement("div");
     c.className="capsule";
     c.style.background=color;
-    c.style.left=Math.random()*200+"px";
-    c.style.top=Math.random()*200+"px";
+    c.style.left=Math.random()*160+"px";
+    c.style.top=Math.random()*160+"px";
+    c.style.transition="transform 1.2s ease";
     area.appendChild(c);
   }
 
-  // 回転アニメーション（カプセルを回す）
-  for (let i = 0; i < area.children.length; i++) {
-    const c = area.children[i];
-    c.style.transition = "transform 1.2s ease";
-    c.style.transform = "rotate(720deg)";
+  for(const c of area.children){
+    c.style.transform="rotate(720deg)";
   }
 
-
-  // 最後に1つ落とす
   setTimeout(()=>{
     const last=area.children[0];
-    last.style.top="260px";
-    last.style.left="110px";
+    last.style.transition="top 0.8s ease, left 0.8s ease";
+    last.style.top="240px";
+    last.style.left="90px";
   },1200);
 }
 
-/* ▼▼▼ 福引き演出 ▼▼▼ */
+/* ▼ 福引き完全版 */
 function playFukubikiEffect(prize){
   hideAllEffects();
   const box=document.getElementById("fukubikiEffect");
@@ -621,57 +400,105 @@ function playFukubikiEffect(prize){
   const area=document.getElementById("fukubikiBalls");
   area.innerHTML="";
 
-  const color=prizeColorMap[{
-    "マイクロSDカード":"microSD",
-    "水筒":"bottle",
-    "トートバッグ":"tote",
-    "SDカード型メモ":"memo500",
-    "SDカード型付箋":"memo100"
-  }[prize]];
+  const color=prizeColorMap[
+    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
+      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
+  ];
 
-  // 玉生成
   for(let i=0;i<6;i++){
     const b=document.createElement("div");
     b.className="ball";
     b.style.background=color;
     b.style.left=Math.random()*160+"px";
     b.style.top=Math.random()*160+"px";
+    b.style.transition="transform 1.2s ease";
     area.appendChild(b);
   }
 
-  // ハンドル回転
+  const handle=document.querySelector(".fukubikiHandle");
   handle.style.transition="transform 1.2s ease";
   handle.style.transform="rotate(720deg)";
 
-  // 玉も回す
-  for (let i = 0; i < area.children.length; i++) {
-    const b = area.children[i];
-    b.style.transition = "transform 1.2s ease";
-    b.style.transform = "rotate(720deg)";
+  for(const b of area.children){
+    b.style.transform="rotate(720deg)";
   }
 
-
-  // 最後に1つ落とす
   setTimeout(()=>{
     const last=area.children[0];
+    last.style.transition="top 0.8s ease, left 0.8s ease";
     last.style.top="220px";
     last.style.left="85px";
   },1200);
 }
 
-/* ▼▼▼ ランダム演出（5種類に拡張） ▼▼▼ */
+/* ▼ ランダム演出（あみだ削除済） */
 function playRandomEffect(prize){
   hideAllEffects();
-
   const effects=[
     playRouletteVegas,
     playSlotEffect,
-    playAmidakujiEffect,
     playGachagachaEffect,
     playFukubikiEffect
   ];
-
   const f=effects[Math.floor(Math.random()*effects.length)];
   f(prize);
 }
+
+/* ▼ entryNumber 自動採番（安全版） */
+async function getNextEntryNumber(){
+  const ref = doc(db,"meta","entryCounter");
+  const next = await runTransaction(db, async (t)=>{
+    const snap = await t.get(ref);
+    const current = snap.exists()? snap.data().lastNumber : 0;
+    const newNum = current + 1;
+    t.set(ref,{lastNumber:newNum});
+    return newNum;
+  });
+  return next;
+}
+
+/* ▼ 抽選ボタン */
+document.getElementById("start").addEventListener("click", async () => {
+
+  const candidates = [];
+  if (await getStock("microSD") > 0) candidates.push("マイクロSDカード");
+  if (await getStock("bottle") > 0) candidates.push("水筒");
+  if (await getStock("tote") > 0) candidates.push("トートバッグ");
+  if (await getStock("memo500") > 0) candidates.push("SDカード型メモ");
+  if (await getStock("memo100") > 0) candidates.push("SDカード型付箋");
+
+  let prize = "";
+
+  if(candidates.length === 0){
+    prize = "景品終了";
+  } else {
+    prize = candidates[Math.floor(Math.random()*candidates.length)];
+
+    const stockIdMap = {
+      "マイクロSDカード": "microSD",
+      "水筒": "bottle",
+      "トートバッグ": "tote",
+      "SDカード型メモ": "memo500",
+      "SDカード型付箋": "memo100"
+    };
+
+    const ok = await decreaseStockSafe(stockIdMap[prize]);
+    if(!ok){
+      alert("在庫がありません");
+      return;
+    }
+
+    await checkHot(stockIdMap[prize]);
+  }
+
+  playRandomEffect(prize);
+
+  const entryNumber = await getNextEntryNumber();
+
+  await addDoc(collection(db,"result"),{
+    prize,
+    entryNumber,
+    timestamp:new Date()
+  });
+});
 </script>
