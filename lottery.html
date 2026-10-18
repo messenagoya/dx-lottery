@@ -513,26 +513,53 @@ document.getElementById("start").addEventListener("click", async () => {
 
   let prize = "";
 
+  const stockIdMap = {
+    "マイクロSDカード": "microSD",
+    "水筒": "bottle",
+    "トートバッグ": "tote",
+    "SDカード型メモ": "memo500",
+    "SDカード型付箋": "memo100"
+  };
+
   if(candidates.length === 0){
+
     prize = "景品終了";
-  } else {
-    prize = candidates[Math.floor(Math.random()*candidates.length)];
 
-    const stockIdMap = {
-      "マイクロSDカード": "microSD",
-      "水筒": "bottle",
-      "トートバッグ": "tote",
-      "SDカード型メモ": "memo500",
-      "SDカード型付箋": "memo100"
-    };
+  }else{
 
-    const ok = await decreaseStockSafe(stockIdMap[prize]);
-    if(!ok){
-      alert("在庫がありません");
-      return;
+    let available = [...candidates];
+
+    while(available.length > 0){
+
+      const index =
+        Math.floor(Math.random() * available.length);
+
+      const candidate = available[index];
+
+      const ok =
+        await decreaseStockSafe(
+          stockIdMap[candidate]
+        );
+
+      if(ok){
+
+        prize = candidate;
+
+        await checkHot(
+          stockIdMap[candidate]
+        );
+
+        break;
+
+      }
+
+      available.splice(index,1);
+
     }
 
-    await checkHot(stockIdMap[prize]);
+    if(prize === ""){
+      prize = "景品終了";
+    }
   }
 
   playRandomEffect(prize);
