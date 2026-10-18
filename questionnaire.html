@@ -157,6 +157,11 @@
 <input type="radio" name="q4student" value="5">
 その他
 </label>
+<input
+  type="text"
+  id="q4StudentOther"
+  placeholder="その他内容"
+>
 
 </div>
 
@@ -195,7 +200,11 @@ Q4 就活で最も重視していたことは何ですか？
 <input type="radio" name="q4general" value="6">
 その他
 </label>
-
+<input
+  type="text"
+  id="q4GeneralOther"
+  placeholder="その他内容"
+>
 </div>
 
 <br><br>
@@ -234,6 +243,12 @@ CM
 <input type="checkbox" name="q5" value="6">
 その他
 </label>
+<input
+  type="text"
+  id="q5Other"
+  placeholder="その他内容"
+>
+
 
 <br><br>
 <h3>
@@ -415,8 +430,23 @@ document
     comment:
       document.getElementById(
         "comment"
-      ).value
+      ).value,
 
+
+    q4StudentOther:
+      document.getElementById(
+        "q4StudentOther"
+      )?.value || "",
+
+    q4GeneralOther:
+      document.getElementById(
+        "q4GeneralOther"
+      )?.value || "",
+
+    q5Other:
+      document.getElementById(
+        "q5Other"
+      )?.value || "",
   };
 
   sessionStorage.setItem(
