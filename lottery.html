@@ -503,6 +503,13 @@ async function getNextEntryNumber(){
 
 /* ▼ 抽選ボタン */
 document.getElementById("start").addEventListener("click", async () => {
+  if(drawing){
+    return;
+  }
+
+  drawing = true;
+
+  document.getElementById("start").disabled = true;
 
   const candidates = [];
   if (await getStock("microSD") > 0) candidates.push("マイクロSDカード");
@@ -581,6 +588,7 @@ document.getElementById("start").addEventListener("click", async () => {
     confirmed: false,
     timestamp: new Date()
   });
+  drawing = false;
 });
 
 /* ▼ スタッフ確認（パスワード無し） */
