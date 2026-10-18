@@ -161,7 +161,11 @@ button:hover { transform: scale(1.05); }
 <button id="start">抽選する</button>
 <div id="result" style="margin-top:20px; font-size:20px;"></div>
  
-<button id="staffConfirm">説明員が確認しました</button>
+<button
+  id="staffConfirm"
+  style="display:none;">
+  説明員が確認しました
+</button>
 
  
 <!-- ▼ ルーレット -->
@@ -205,7 +209,7 @@ button:hover { transform: scale(1.05); }
 <script type="module">
 /* ▼ Firebase */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, doc, getDoc, addDoc, runTransaction }
+import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, runTransaction }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -218,6 +222,10 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+/* ▼ 今回の抽選情報 */
+let currentSurveyDocRef = null;
+let currentEntryNumber = null;
 
 /* ▼ 在庫取得 */
 async function getStock(id){
@@ -266,6 +274,7 @@ function hideAllEffects(){
   document.getElementById("rouletteCenter").style.display="none";
   document.getElementById("gachaEffect").style.display="none";
   document.getElementById("fukubikiEffect").style.display="none";
+  document.getElementById("staffConfirm").style.display="none";
 }
 
 /* ▼ ルーレット */
@@ -301,6 +310,8 @@ function playRouletteVegas(prize){
 
     setTimeout(()=>{
       result.innerHTML="🎉 抽選結果： "+prize;
+      document.getElementById("staffConfirm")
+        .style.display = "inline-block";
       wheel.style.boxShadow="0 -35px 25px gold";
       center.textContent=prize;
       center.style.display="block";
@@ -347,6 +358,8 @@ function playSlotEffect(prize){
 
   setTimeout(()=>{
     result.innerHTML="🎉 抽選結果： "+prize;
+    document.getElementById("staffConfirm")
+      .style.display = "inline-block";
   },3000);
 }
 
@@ -361,6 +374,8 @@ const prizeColorMap = {
 
 function playGachagachaEffect(prize){
   hideAllEffects();
+  document.getElementById("staffConfirm")
+    .style.display = "none";
   const box=document.getElementById("gachaEffect");
   box.style.display="block";
 
@@ -386,17 +401,31 @@ function playGachagachaEffect(prize){
     c.style.transform="rotate(720deg)";
   }
 
-  setTimeout(()=>{
-    const last=area.children[0];
-    last.style.transition="top 0.8s ease, left 0.8s ease";
-    last.style.top="240px";
-    last.style.left="90px";
-  },1200);
+  setTimeout(() => {
+    const last = area.children[0];
+
+    if(last){
+      last.style.transition = "top 0.8s ease, left 0.8s ease";
+      last.style.top = "240px";
+      last.style.left = "90px";
+    }
+
+    setTimeout(() => {
+      document.getElementById("result").innerHTML =
+        "🎉 抽選結果： " + prize;
+
+      document.getElementById("staffConfirm").style.display =
+        "inline-block";
+    }, 900);
+
+  }, 1200);
 }
 
 /* ▼ 福引き完全版 */
 function playFukubikiEffect(prize){
   hideAllEffects();
+  document.getElementById("staffConfirm")
+    .style.display = "none";
   const box=document.getElementById("fukubikiEffect");
   box.style.display="block";
 
@@ -426,12 +455,24 @@ function playFukubikiEffect(prize){
     b.style.transform="rotate(720deg)";
   }
 
-  setTimeout(()=>{
-    const last=area.children[0];
-    last.style.transition="top 0.8s ease, left 0.8s ease";
-    last.style.top="220px";
-    last.style.left="85px";
-  },1200);
+  setTimeout(() => {
+    const last = area.children[0];
+
+    if(last){
+      last.style.transition = "top 0.8s ease, left 0.8s ease";
+      last.style.top = "220px";
+      last.style.left = "85px";
+    }
+
+    setTimeout(() => {
+      document.getElementById("result").innerHTML =
+        "🎉 抽選結果： " + prize;
+
+      document.getElementById("staffConfirm").style.display =
+        "inline-block";
+    }, 900);
+
+  }, 1200);
 }
 
 /* ▼ ランダム演出（あみだ削除済） */
@@ -496,7 +537,7 @@ document.getElementById("start").addEventListener("click", async () => {
 
   playRandomEffect(prize);
 
-  const entryNumber = await getNextEntryNumber();
+  currentEntryNumber = await getNextEntryNumber();
 
   /* questionnaire.htmlから渡されたアンケート情報取得 */
   const surveyData =
@@ -505,30 +546,53 @@ document.getElementById("start").addEventListener("click", async () => {
     ) || {};
 
   /* surveyコレクションへ保存 */
-  await addDoc(collection(db,"survey"),{
-
+  currentSurveyDocRef = await addDoc(collection(db, "survey"), {
     ...surveyData,
 
-    entryNumber,
-
+    entryNumber: currentEntryNumber,
     prize,
-
-    confirmed:false,
-
-    timestamp:new Date()
-
+    confirmed: false,
+    timestamp: new Date()
   });
 });
 
 /* ▼ スタッフ確認（パスワード無し） */
-document.getElementById("staffConfirm").addEventListener("click", async () => {
-  const entryNumber = await getNextEntryNumber();
-  await addDoc(collection(db,"result"),{
-    prize: document.getElementById("result").textContent.replace("🎉 抽選結果： ",""),
-    entryNumber,
-    timestamp: new Date()
+document.getElementById("staffConfirm")
+  .addEventListener("click", async () => {
+
+    if (!currentSurveyDocRef) {
+      alert("抽選結果がまだ保存されていません。");
+      return;
+    }
+
+    const button = document.getElementById("staffConfirm");
+
+    button.disabled = true;
+    button.textContent = "確認処理中...";
+
+    try {
+      await updateDoc(currentSurveyDocRef, {
+        confirmed: true,
+        confirmedAt: new Date()
+      });
+
+      button.textContent = "確認済み";
+      button.style.background = "#28a745";
+
+      alert(
+        "説明員が確認しました（番号: " +
+        currentEntryNumber +
+        "）"
+      );
+
+    } catch (error) {
+      console.error(error);
+
+      button.disabled = false;
+      button.textContent = "説明員が確認しました";
+
+      alert("確認処理に失敗しました。");
+    }
   });
-  alert("説明員が確認しました（番号: " + entryNumber + "）");
-});
 </script>
 </html>
