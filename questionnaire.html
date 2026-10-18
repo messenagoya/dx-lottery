@@ -13,71 +13,409 @@
 
 <form id="surveyForm">
 
-  <h3>Q1 ご来場目的</h3>
+<h3>Q1 ご来場目的</h3>
 
-  <label>
-    <input type="radio" name="q1" value="1" required>
-    出展関係者
-  </label><br>
+<label>
+  <input type="radio" name="q1" value="1" required>
+  出展関係者
+</label><br>
 
-  <label>
-    <input type="radio" name="q1" value="2">
-    気になるブースがあった
-  </label><br>
+<label>
+  <input type="radio" name="q1" value="2">
+  気になるブースがあった
+</label><br>
 
-  <label>
-    <input type="radio" name="q1" value="3">
-    就職活動
-  </label><br>
+<label>
+  <input type="radio" name="q1" value="3">
+  就職活動
+</label><br>
 
-  <label>
-    <input type="radio" name="q1" value="4">
-    その他
-  </label><br><br>
+<label>
+  <input type="radio" name="q1" value="4">
+  その他
+</label>
 
-  <h3>Q2 年齢</h3>
+<br><br>
 
-  <select id="q2" required>
-    <option value="">選択してください</option>
-    <option value="1">10代</option>
-    <option value="2">20代</option>
-    <option value="3">30代</option>
-    <option value="4">40代</option>
-    <option value="5">50代</option>
-    <option value="6">60代以上</option>
-  </select>
+<h3>Q2 ご年齢</h3>
 
-  <br><br>
+<select id="q2" required>
 
-  <button type="submit">
-    抽選へ進む
-  </button>
+  <option value="">
+    選択してください
+  </option>
+
+  <option value="1">10代</option>
+  <option value="2">20代</option>
+  <option value="3">30代</option>
+  <option value="4">40代</option>
+  <option value="5">50代</option>
+  <option value="6">60代以上</option>
+
+</select>
+
+<br><br>
+
+<h3>Q3 学校・ご職業</h3>
+
+<p><strong>学生の方</strong></p>
+
+<label>
+<input type="radio" name="q3" value="1">
+小中学生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="2">
+高校生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="3">
+専門学生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="4">
+高専生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="5">
+大学生（学部）
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="6">
+大学院生（修士）
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="7">
+大学院生（博士）
+</label><br>
+
+<p><strong>学生以外の方</strong></p>
+
+<label>
+<input type="radio" name="q3" value="8">
+公務員
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="9">
+自営業
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="10">
+会社員
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="11">
+パート・アルバイト
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="12">
+家事専業
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="13">
+その他
+</label>
+
+<br><br>
+
+<div id="studentQ4" style="display:none;">
+
+<h3>Q4 学校所在地</h3>
+
+<label>
+<input type="radio" name="q4student" value="1">
+愛知県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="2">
+静岡県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="3">
+岐阜県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="4">
+三重県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="5">
+その他
+</label>
+
+</div>
+
+<div id="generalQ4" style="display:none;">
+
+<h3>
+Q4 就活で最も重視していたことは何ですか？
+</h3>
+
+<label>
+<input type="radio" name="q4general" value="1">
+給与
+</label><br>
+
+<label>
+<input type="radio" name="q4general" value="2">
+仕事内容
+</label><br>
+
+<label>
+<input type="radio" name="q4general" value="3">
+福利厚生
+</label><br>
+
+<label>
+<input type="radio" name="q4general" value="4">
+休日日数
+</label><br>
+
+<label>
+<input type="radio" name="q4general" value="5">
+勤務地
+</label><br>
+
+<label>
+<input type="radio" name="q4general" value="6">
+その他
+</label>
+
+</div>
+
+<br><br>
+
+<h3>
+Q5 存在は何で知りましたか？
+（複数回答可）
+</h3>
+
+<label>
+<input type="checkbox" name="q5" value="1">
+今日の展示会
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="2">
+CM
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="3">
+求人サイト
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="4">
+製品を使ったことがある
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="5">
+取引がある
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="6">
+その他
+</label>
+
+<br><br>
+<h3>
+Q6 ブースを見て興味が湧きましたか？
+</h3>
+
+<label>
+<input type="radio" name="q6" value="1">
+とても湧いた
+</label><br>
+
+<label>
+<input type="radio" name="q6" value="2">
+湧いた
+</label><br>
+
+<label>
+<input type="radio" name="q6" value="3">
+あまり湧かなかった
+</label><br>
+
+<label>
+<input type="radio" name="q6" value="4">
+湧かなかった
+</label>
+
+<br><br>
+
+<h3>
+Q7 印象に残ったもの
+（複数回答可）
+</h3>
+
+<label><input type="checkbox" name="q7" value="1"> 製品展示</label><br>
+<label><input type="checkbox" name="q7" value="2"> ウエハ展示</label><br>
+<label><input type="checkbox" name="q7" value="3"> USB分解展示</label><br>
+<label><input type="checkbox" name="q7" value="4"> 貼合チャレンジ</label><br>
+<label><input type="checkbox" name="q7" value="5"> 組立技術（後工程）</label><br>
+<label><input type="checkbox" name="q7" value="6"> 技術力</label><br>
+<label><input type="checkbox" name="q7" value="7"> 環境活動</label><br>
+<label><input type="checkbox" name="q7" value="8"> 工場全体写真</label><br>
+<label><input type="checkbox" name="q7" value="9"> パネル</label><br>
+<label><input type="checkbox" name="q7" value="10"> 従業員の対応</label>
+
+<br><br>
+
+<h3>
+Q8 工場所在地
+（複数回答可・任意）
+</h3>
+
+<label><input type="checkbox" name="q8" value="1"> 東京都</label><br>
+<label><input type="checkbox" name="q8" value="2"> 神奈川県</label><br>
+<label><input type="checkbox" name="q8" value="3"> 岩手県</label><br>
+<label><input type="checkbox" name="q8" value="4"> 大阪府</label><br>
+<label><input type="checkbox" name="q8" value="5"> 三重県</label><br>
+<label><input type="checkbox" name="q8" value="6"> 兵庫県</label><br>
+<label><input type="checkbox" name="q8" value="7"> 大分県</label><br>
+
+<br><br>
+
+<h3>ご意見・ご感想</h3>
+
+<textarea
+  id="comment"
+  rows="5"
+  cols="40"
+></textarea>
+
+<br><br>
+
+<button type="submit">
+  抽選へ進む
+</button>
 
 </form>
 
 <script>
 
-document.getElementById("surveyForm")
+document
+  .querySelectorAll('input[name="q3"]')
+  .forEach(r => {
+
+    r.addEventListener("change", () => {
+
+      const val = Number(r.value);
+
+      if(val <= 7){
+
+        document.getElementById("studentQ4")
+          .style.display = "block";
+
+        document.getElementById("generalQ4")
+          .style.display = "none";
+
+      }else{
+
+        document.getElementById("studentQ4")
+          .style.display = "none";
+
+        document.getElementById("generalQ4")
+          .style.display = "block";
+
+      }
+
+    });
+
+  });
+
+document
+.getElementById("surveyForm")
 .addEventListener("submit",(e)=>{
 
   e.preventDefault();
 
+  const q5 =
+    [...document.querySelectorAll(
+      'input[name="q5"\]:checked'
+    )].map(x => x.value);
+
+  const q7 =
+    [...document.querySelectorAll(
+      'input[name="q7"\]:checked'
+    )].map(x => x.value);
+
+  const q8 =
+    [...document.querySelectorAll(
+      'input[name="q8"\]:checked'
+    )].map(x => x.value);
+
+  let q4 = "";
+
+  const q3 =
+    document.querySelector(
+      'input[name="q3"\]:checked'
+    )?.value || "";
+
+  if(Number(q3) <= 7){
+
+    q4 =
+      document.querySelector(
+        'input[name="q4student"\]:checked'
+      )?.value || "";
+
+  }else{
+
+    q4 =
+      document.querySelector(
+        'input[name="q4general"\]:checked'
+      )?.value || "";
+
+  }
+
   const survey = {
 
-    q1: document.querySelector(
-      'input[name="q1"\]:checked'
-    )?.value || "",
+    q1:
+      document.querySelector(
+        'input[name="q1"\]:checked'
+      )?.value || "",
 
-    q2: document.getElementById("q2").value,
+    q2:
+      document.getElementById("q2").value,
 
-    q3: "",
-    q4: "",
-    q5: "",
-    q6: "",
-    q7: [],
-    q8: [],
+    q3,
 
-    comment: ""
+    q4,
+
+    q5,
+
+    q6:
+      document.querySelector(
+        'input[name="q6"\]:checked'
+      )?.value || "",
+
+    q7,
+
+    q8,
+
+    comment:
+      document.getElementById(
+        "comment"
+      ).value
 
   };
 
