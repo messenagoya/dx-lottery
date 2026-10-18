@@ -498,10 +498,25 @@ document.getElementById("start").addEventListener("click", async () => {
 
   const entryNumber = await getNextEntryNumber();
 
-  await addDoc(collection(db,"result"),{
-    prize,
+  /* questionnaire.htmlから渡されたアンケート情報取得 */
+  const surveyData =
+    JSON.parse(
+      sessionStorage.getItem("survey")
+    ) || {};
+
+  /* surveyコレクションへ保存 */
+  await addDoc(collection(db,"survey"),{
+
+    ...surveyData,
+
     entryNumber,
+
+    prize,
+
+    confirmed:false,
+
     timestamp:new Date()
+
   });
 });
 
