@@ -226,6 +226,9 @@ const db = getFirestore(app);
 /* ▼ 今回の抽選情報 */
 let currentSurveyDocRef = null;
 let currentEntryNumber = null;
+ 
+/* ▼ 抽選中フラグ */
+let drawing = false;
 
 /* ▼ 在庫取得 */
 async function getStock(id){
