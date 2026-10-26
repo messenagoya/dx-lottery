@@ -242,16 +242,57 @@ Q7 印象に残ったもの
 （複数回答可）
 </h3>
 
-<label><input type="checkbox" name="q7" value="1"> 製品展示</label><br>
-<label><input type="checkbox" name="q7" value="2"> ウエハ展示</label><br>
-<label><input type="checkbox" name="q7" value="3"> USB分解展示</label><br>
-<label><input type="checkbox" name="q7" value="4"> 貼合チャレンジ</label><br>
-<label><input type="checkbox" name="q7" value="5"> 組立技術（後工程）</label><br>
-<label><input type="checkbox" name="q7" value="6"> 技術力</label><br>
-<label><input type="checkbox" name="q7" value="7"> 環境活動</label><br>
-<label><input type="checkbox" name="q7" value="8"> 工場全体写真</label><br>
-<label><input type="checkbox" name="q7" value="9"> パネル</label><br>
-<label><input type="checkbox" name="q7" value="10"> 従業員の対応</label>
+<label>
+<input type="checkbox" name="q7" value="1">
+ウエハ展示
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="2">
+工程フロー
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="3">
+サステナビリティ／環境活動
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="4">
+採用情報
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="5">
+巨大工場航空写真
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="6">
+フラッシュメモリ立体大型模型
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="7">
+工場でのAI/DX活用
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="8">
+生成AIの「中」を旅してみよう
+（SSDの活躍について）
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="9">
+その他
+</label>
+
+<input
+  type="text"
+  id="q7Other"
+  placeholder="その他内容"
+>
 
 <br><br>
 
@@ -366,7 +407,10 @@ document
       )?.value || "",
 
     q7,
-
+    q7Other:
+      document.getElementById(
+        "q7Other"
+      )?.value || "",
 
     comment:
       document.getElementById(
