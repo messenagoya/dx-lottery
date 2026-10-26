@@ -255,19 +255,6 @@ Q7 印象に残ったもの
 
 <br><br>
 
-<h3>
-Q8 工場所在地
-（複数回答可・任意）
-</h3>
-
-<label><input type="checkbox" name="q8" value="1"> 東京都</label><br>
-<label><input type="checkbox" name="q8" value="2"> 神奈川県</label><br>
-<label><input type="checkbox" name="q8" value="3"> 岩手県</label><br>
-<label><input type="checkbox" name="q8" value="4"> 大阪府</label><br>
-<label><input type="checkbox" name="q8" value="5"> 三重県</label><br>
-<label><input type="checkbox" name="q8" value="6"> 兵庫県</label><br>
-<label><input type="checkbox" name="q8" value="7"> 大分県</label><br>
-
 <br><br>
 
 <h3>ご意見・ご感想</h3>
@@ -301,9 +288,6 @@ document
         document.getElementById("studentQ4")
           .style.display = "block";
 
-        document.getElementById("generalQ4")
-          .style.display = "none";
-
       }else{
 
         document.getElementById("studentQ4")
@@ -331,10 +315,6 @@ document
       'input[name="q7"\]:checked'
     )].map(x => x.value);
 
-  const q8 =
-    [...document.querySelectorAll(
-      'input[name="q8"\]:checked'
-    )].map(x => x.value);
 
   let q4 = "";
 
@@ -376,7 +356,6 @@ document
 
     q7,
 
-    q8,
 
     comment:
       document.getElementById(
