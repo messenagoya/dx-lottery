@@ -44,6 +44,7 @@
         <th>Q5その他</th>
         <th>Q6</th>
         <th>Q7</th>
+        <th>Q7その他</th>
         <th>自由記述</th>
         <th>景品</th>
         <th>確認済み</th>
@@ -263,6 +264,9 @@ async function loadSurvey() {
               ? d.q7.join(", ")
               : "-"
           }
+        </td>
+        <td>
+          ${d.q7Other ?? "-"}
         </td>
 
         <td>${d.comment ?? "-"}</td>
