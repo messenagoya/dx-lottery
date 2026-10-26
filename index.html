@@ -18,9 +18,21 @@
 
     <div class="entry-buttons">
 
-      <button onclick="location.href='questionnaire.html'">
+      <button id="startEntry">
         アンケートを開始する
       </button>
+
+      <script>
+      document.getElementById("startEntry")
+        .addEventListener("click", () => {
+
+          /* 前の来場者の情報を削除 */
+          sessionStorage.removeItem("survey");
+          sessionStorage.removeItem("drawCompleted");
+
+          location.href = "questionnaire.html";
+        });
+      </script>
 
     </div>
 
