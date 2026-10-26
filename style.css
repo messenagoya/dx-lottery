@@ -179,3 +179,48 @@ input[type="text"] {
   }
 
 }
+/* スマホ向け */
+
+@media (max-width: 768px){
+
+  h1{
+    font-size: 38px;
+    line-height: 1.4;
+  }
+
+  p{
+    font-size: 22px;
+    line-height: 1.6;
+  }
+
+  #start{
+    width: 100%;
+    max-width: 450px;
+    min-height: 90px;
+    font-size: 32px;
+    font-weight: bold;
+  }
+
+  #staffConfirm{
+    width: 100%;
+    max-width: 450px;
+    min-height: 90px;
+    font-size: 28px;
+    margin-top: 20px;
+  }
+
+  #result{
+    font-size: 36px !important;
+    font-weight: bold;
+    line-height: 1.6;
+    margin-top: 25px;
+  }
+
+  #hotBanner{
+    font-size: 28px;
+  }
+
+  .rouletteCenter{
+    font-size: 30px;
+  }
+}
