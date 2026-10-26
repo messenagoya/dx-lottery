@@ -31,6 +31,10 @@
   <h1>管理者画面（アンケート一覧）</h1>
   <p>Firestore に保存された回答を一覧表示します。</p>
 
+  <button id="csvExportBtn">
+    CSVダウンロード
+  </button>
+
   <table>
     <thead>
       <tr>
@@ -107,6 +111,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+let surveyExportData = [];
 
 /* ▼ 在庫増減（＋／−） */
 async function changeStock(id, diff){
@@ -230,8 +235,13 @@ async function loadSurvey() {
   list.innerHTML = "";
   const snapshot = await getDocs(collection(db, "survey"));
 
+  surveyExportData = [];
+
+
   snapshot.forEach(doc => {
     const d = doc.data();
+
+    surveyExportData.push(d);
     list.innerHTML += `
       <tr>
         <td>${d.entryNumber ?? "-"}</td>
@@ -243,7 +253,7 @@ async function loadSurvey() {
         <td>${d.q4 ?? "-"}</td>
 
         <td>
-          ${d.q4StudentOther || d.q4GeneralOther || "-"}
+          ${d.q4StudentOther || "-"}
         </td>
 
         <td>
@@ -285,7 +295,116 @@ async function loadSurvey() {
   });
 }
 loadSurvey();
+/* ▼ CSV出力 */
+document
+  .getElementById("csvExportBtn")
+  .addEventListener("click", () => {
 
+    if(surveyExportData.length === 0){
+      alert("出力するデータがありません");
+      return;
+    }
+
+    const header = [
+      "入場番号",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Q4その他",
+      "Q5",
+      "Q5その他",
+      "Q6",
+      "Q7",
+      "Q7その他",
+      "自由記述",
+      "景品",
+      "確認済み",
+      "回答日時"
+    ];
+
+    const rows = surveyExportData.map(d => [
+
+      d.entryNumber ?? "",
+      d.q1 ?? "",
+      d.q2 ?? "",
+      d.q3 ?? "",
+      d.q4 ?? "",
+      d.q4StudentOther ?? "",
+
+      Array.isArray(d.q5)
+        ? d.q5.join("|")
+        : "",
+
+      d.q5Other ?? "",
+
+      d.q6 ?? "",
+
+      Array.isArray(d.q7)
+        ? d.q7.join("|")
+        : "",
+
+      d.q7Other ?? "",
+
+      d.comment ?? "",
+
+      d.prize ?? "",
+
+      d.confirmed
+        ? "確認済み"
+        : "未確認",
+
+      d.timestamp?.toDate
+        ? d.timestamp
+            .toDate()
+            .toLocaleString("ja-JP")
+        : ""
+
+    ]);
+
+    const csv = [
+      header.join(","),
+      ...rows.map(r =>
+        r.map(v =>
+          `"${String(v).replace(/"/g,'""')}"`
+        ).join(",")
+      )
+    ].join("\r\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csv],
+      {
+        type:"text/csv;charset=utf-8;"
+      }
+    );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const a =
+      document.createElement("a");
+
+    a.href = url;
+
+    const now = new Date();
+
+    const fileName =
+      "survey_" +
+      now.getFullYear() +
+      String(now.getMonth()+1).padStart(2,"0") +
+      String(now.getDate()).padStart(2,"0") +
+      ".csv";
+
+    a.download = fileName;
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  });
 /* ▼ 在庫一覧 */
 async function loadStock() {
   const table = document.getElementById("stockTable");
