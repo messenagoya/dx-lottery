@@ -229,6 +229,20 @@ let currentEntryNumber = null;
  
 /* ▼ 抽選中フラグ */
 let drawing = false;
+ 
+/* ▼ 抽選済みなら入口へ戻す */
+function checkAlreadyDrawn(){
+  if(sessionStorage.getItem("drawCompleted") === "true"){
+    location.replace("index.html");
+  }
+}
+
+checkAlreadyDrawn();
+
+/* ブラウザの戻る・進むで復元された場合にも確認 */
+window.addEventListener("pageshow", () => {
+  checkAlreadyDrawn();
+});
 
 /* ▼ 在庫取得 */
 async function getStock(id){
@@ -591,6 +605,10 @@ document.getElementById("start").addEventListener("click", async () => {
     confirmed: false,
     timestamp: new Date()
   });
+
+  /* このブラウザでは抽選済みにする */
+  sessionStorage.setItem("drawCompleted", "true");
+
   drawing = false;
 });
 
