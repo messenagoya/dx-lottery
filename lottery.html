@@ -226,9 +226,33 @@ const db = getFirestore(app);
 /* ▼ 今回の抽選情報 */
 let currentSurveyDocRef = null;
 let currentEntryNumber = null;
- 
+let currentPrize = "";
+let currentStockId = "";
 /* ▼ 抽選中フラグ */
 let drawing = false;
+
+const prizeData = [
+  {
+    id: "microSD",
+    name: "マイクロSDカード"
+  },
+  {
+    id: "bottle",
+    name: "水筒"
+  },
+  {
+    id: "tote",
+    name: "トートバッグ"
+  },
+  {
+    id: "memo500",
+    name: "SDカード型メモ"
+  },
+  {
+    id: "memo100",
+    name: "SDカード型付箋"
+  }
+];
  
 /* ▼ 抽選済みなら入口へ戻す */
 function checkAlreadyDrawn(){
@@ -262,7 +286,78 @@ async function decreaseStockSafe(id){
     return true;
   });
 }
+/* ▼ 在庫数に比例して景品を選び、1個予約する */
+async function reserveWeightedPrize(){
 
+  return await runTransaction(db, async (transaction) => {
+
+    const stockList = [];
+
+    for(const item of prizeData){
+
+      const stockRef = doc(db, "stock", item.id);
+      const stockSnap = await transaction.get(stockRef);
+
+      if(!stockSnap.exists()){
+        continue;
+      }
+
+      const data = stockSnap.data();
+
+      const count = Number(data.count || 0);
+      const reserved = Number(data.reserved || 0);
+
+      const available = Math.max(0, count - reserved);
+
+      if(available > 0){
+        stockList.push({
+          ...item,
+          ref: stockRef,
+          count,
+          reserved,
+          available
+        });
+      }
+    }
+
+    const totalAvailable = stockList.reduce(
+      (total, item) => total + item.available,
+      0
+    );
+
+    if(totalAvailable <= 0){
+      return null;
+    }
+
+    let randomNumber =
+      Math.floor(Math.random() * totalAvailable);
+
+    let selected = null;
+
+    for(const item of stockList){
+
+      if(randomNumber < item.available){
+        selected = item;
+        break;
+      }
+
+      randomNumber -= item.available;
+    }
+
+    if(!selected){
+      return null;
+    }
+
+    transaction.update(selected.ref, {
+      reserved: selected.reserved + 1
+    });
+
+    return {
+      id: selected.id,
+      name: selected.name
+    };
+  });
+}
 /* ▼ 激熱バナー */
 async function checkHot(id){
   const stock = await getStock(id);
@@ -537,53 +632,23 @@ document.getElementById("start").addEventListener("click", async () => {
 
   let prize = "";
 
-  const stockIdMap = {
-    "マイクロSDカード": "microSD",
-    "水筒": "bottle",
-    "トートバッグ": "tote",
-    "SDカード型メモ": "memo500",
-    "SDカード型付箋": "memo100"
-  };
+  const selectedPrize = await reserveWeightedPrize();
 
-  if(candidates.length === 0){
+  let prize = "";
+
+  if(!selectedPrize){
 
     prize = "景品終了";
+    currentPrize = "景品終了";
+    currentStockId = "";
 
   }else{
 
-    let available = [...candidates];
+    prize = selectedPrize.name;
+    currentPrize = selectedPrize.name;
+    currentStockId = selectedPrize.id;
 
-    while(available.length > 0){
-
-      const index =
-        Math.floor(Math.random() * available.length);
-
-      const candidate = available[index];
-
-      const ok =
-        await decreaseStockSafe(
-          stockIdMap[candidate]
-        );
-
-      if(ok){
-
-        prize = candidate;
-
-        await checkHot(
-          stockIdMap[candidate]
-        );
-
-        break;
-
-      }
-
-      available.splice(index,1);
-
-    }
-
-    if(prize === ""){
-      prize = "景品終了";
-    }
+    await checkHot(currentStockId);
   }
 
   playRandomEffect(prize);
@@ -602,6 +667,11 @@ document.getElementById("start").addEventListener("click", async () => {
 
     entryNumber: currentEntryNumber,
     prize,
+    stockId: currentStockId,
+
+    reserved:
+      currentStockId !== "",
+
     confirmed: false,
     timestamp: new Date()
   });
@@ -627,8 +697,51 @@ document.getElementById("staffConfirm")
     button.textContent = "確認処理中...";
 
     try {
+      if(currentStockId){
+
+        const stockRef =
+          doc(db, "stock", currentStockId);
+
+        const confirmed =
+          await runTransaction(db, async (transaction) => {
+
+            const stockSnap =
+              await transaction.get(stockRef);
+
+            if(!stockSnap.exists()){
+              return false;
+            }
+
+            const stockData = stockSnap.data();
+
+            const count =
+              Number(stockData.count || 0);
+
+            const reserved =
+              Number(stockData.reserved || 0);
+
+            if(count <= 0 || reserved <= 0){
+              return false;
+            }
+
+            transaction.update(stockRef, {
+              count: count - 1,
+              reserved: reserved - 1
+            });
+
+            return true;
+          });
+
+        if(!confirmed){
+          throw new Error(
+            "在庫の確定処理に失敗しました"
+          );
+        }
+      }
+
       await updateDoc(currentSurveyDocRef, {
         confirmed: true,
+        reserved: false,
         confirmedAt: new Date()
       });
 
