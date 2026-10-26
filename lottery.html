@@ -623,15 +623,6 @@ document.getElementById("start").addEventListener("click", async () => {
 
   document.getElementById("start").disabled = true;
 
-  const candidates = [];
-  if (await getStock("microSD") > 0) candidates.push("マイクロSDカード");
-  if (await getStock("bottle") > 0) candidates.push("水筒");
-  if (await getStock("tote") > 0) candidates.push("トートバッグ");
-  if (await getStock("memo500") > 0) candidates.push("SDカード型メモ");
-  if (await getStock("memo100") > 0) candidates.push("SDカード型付箋");
-
-  let prize = "";
-
   const selectedPrize = await reserveWeightedPrize();
 
   let prize = "";
