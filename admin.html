@@ -111,14 +111,30 @@ const db = getFirestore(app);
 async function changeStock(id, diff){
   const ref = doc(db, "stock", id);
   const snap = await getDoc(ref);
-  if(!snap.exists()) return alert("在庫データが見つかりません");
 
-  let count = snap.data().count + diff;
-  if(count < 0) count = 0; // マイナス防止
+  if(!snap.exists()){
+    alert("在庫データが見つかりません");
+    return;
+  }
 
-  await updateDoc(ref, { count });
+  const currentCount = Number(snap.data().count || 0);
+  const reserved = Number(snap.data().reserved || 0);
+  const newCount = currentCount + diff;
 
-  loadStock(); // 再読み込み
+  if(newCount < reserved){
+    alert(
+      "予約中の景品が " +
+      reserved +
+      " 個あるため、これ以上減らせません。"
+    );
+    return;
+  }
+
+  await updateDoc(ref, {
+    count: Math.max(0, newCount)
+  });
+
+  await loadStock();
 }
 
 /* ▼ 在庫変更（正数で追加、負数で減少） */
