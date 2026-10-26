@@ -110,3 +110,72 @@ input[type="text"] {
   color:black !important;
   box-shadow:0 0 20px gold;
 }
+/* =========================
+   スマホ最適化
+========================= */
+
+*{
+  box-sizing:border-box;
+}
+
+@media (max-width: 768px){
+
+  body{
+    padding:16px;
+    text-align:left;
+  }
+
+  h1{
+    font-size:32px;
+    text-align:center;
+    line-height:1.4;
+  }
+
+  h3{
+    font-size:22px;
+    line-height:1.5;
+  }
+
+  p{
+    font-size:18px;
+    line-height:1.8;
+  }
+
+  label{
+    display:block;
+    padding:12px;
+    margin:8px 0;
+    background:#ffffff;
+    border-radius:10px;
+  }
+
+  input[type="radio"],
+  input[type="checkbox"]{
+    width:24px;
+    height:24px;
+    margin-right:10px;
+    vertical-align:middle;
+  }
+
+  select,
+  textarea,
+  input[type="text"]{
+    width:100%;
+    max-width:none;
+    font-size:16px;
+    padding:12px;
+    margin-top:8px;
+  }
+
+  textarea{
+    min-height:140px;
+  }
+
+  button{
+    width:100%;
+    min-height:70px;
+    font-size:22px;
+    margin-top:15px;
+  }
+
+}
