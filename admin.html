@@ -58,9 +58,11 @@
     <tr><th>景品名</th><th>残数</th><th>操作</th></tr>
   </table>
 
-  <h2>在庫補充</h2>
+  <h2>在庫変更</h2>
+
   <div>
     <label>景品：</label>
+
     <select id="stockItem">
       <option value="microSD">マイクロSDカード</option>
       <option value="bottle">水筒</option>
@@ -69,10 +71,23 @@
       <option value="memo100">SDカード型付箋</option>
     </select>
 
-    <label>補充数：</label>
-    <input type="number" id="addCount" value="1" min="1">
+    <label>変更数：</label>
 
-    <button id="addStockBtn">補充する</button>
+    <input
+      type="number"
+      id="addCount"
+      value="1"
+      step="1"
+      placeholder="追加は正数、減少は負数"
+    >
+
+    <button id="addStockBtn">
+      在庫を変更する
+    </button>
+
+    <p>
+      例：10で10個追加、-3で3個減少
+    </p>
   </div>
 
 <script type="module">
@@ -106,29 +121,90 @@ async function changeStock(id, diff){
   loadStock(); // 再読み込み
 }
 
-/* ▼ 在庫補充（新規作成にも対応） */
-document.getElementById("addStockBtn").addEventListener("click", async () => {
-  const itemId = document.getElementById("stockItem").value;
-  const addCount = Number(document.getElementById("addCount").value);
-  if (addCount <= 0) return alert("補充数は1以上を入力してください");
+/* ▼ 在庫変更（正数で追加、負数で減少） */
+document.getElementById("addStockBtn")
+  .addEventListener("click", async () => {
 
-  const ref = doc(db, "stock", itemId);
-  const snap = await getDoc(ref);
+    const itemId =
+      document.getElementById("stockItem").value;
 
-  if (!snap.exists()) {
-    // ★ ドキュメントが消えていた場合は新規作成
-    await setDoc(ref, {
-      name: document.querySelector(`#stockItem option[value="${itemId}"]`).textContent,
-      count: addCount
-    });
-  } else {
-    // ★ 既存なら補充
-    await updateDoc(ref, { count: snap.data().count + addCount });
-  }
+    const input =
+      document.getElementById("addCount");
 
-  alert("補充しました！");
-  loadStock(); // 再読み込み
-});
+    const changeCount =
+      Number(input.value);
+
+    if (!Number.isInteger(changeCount) || changeCount === 0) {
+      alert("0以外の整数を入力してください。");
+      return;
+    }
+
+    const ref = doc(db, "stock", itemId);
+    const snap = await getDoc(ref);
+
+    const itemName =
+      document.querySelector(
+        `#stockItem option[value="${itemId}"]`
+      ).textContent;
+
+    if (!snap.exists()) {
+
+      if (changeCount < 0) {
+        alert(
+          "在庫データが存在しないため、減らすことができません。"
+        );
+        return;
+      }
+
+      await setDoc(ref, {
+        name: itemName,
+        count: changeCount,
+        reserved: 0
+      });
+
+    } else {
+
+      const currentCount =
+        Number(snap.data().count || 0);
+
+      const reserved =
+        Number(snap.data().reserved || 0);
+
+      const requestedCount =
+        currentCount + changeCount;
+
+      /*
+        予約数より少ない在庫には変更しない。
+        例：予約2個なら、countを1にはできない。
+      */
+      if (requestedCount < reserved) {
+        alert(
+          "予約中の景品が " +
+          reserved +
+          " 個あるため、在庫をそれ未満にはできません。"
+        );
+        return;
+      }
+
+      const newCount =
+        Math.max(0, requestedCount);
+
+      await updateDoc(ref, {
+        count: newCount
+      });
+    }
+
+    const operationText =
+      changeCount > 0
+        ? Math.abs(changeCount) + "個追加しました。"
+        : Math.abs(changeCount) + "個減らしました。";
+
+    alert(operationText);
+
+    input.value = 1;
+
+    await loadStock();
+  });
 
 
 /* ▼ アンケート一覧 */
