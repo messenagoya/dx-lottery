@@ -44,7 +44,6 @@
         <th>Q5その他</th>
         <th>Q6</th>
         <th>Q7</th>
-        <th>Q8</th>
         <th>自由記述</th>
         <th>景品</th>
         <th>確認済み</th>
@@ -170,14 +169,6 @@ async function loadSurvey() {
           ${
             Array.isArray(d.q7)
               ? d.q7.join(", ")
-              : "-"
-          }
-        </td>
-
-        <td>
-          ${
-            Array.isArray(d.q8)
-              ? d.q8.join(", ")
               : "-"
           }
         </td>
