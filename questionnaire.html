@@ -274,7 +274,18 @@ Q7 印象に残ったもの
 </form>
 
 <script>
+/* ▼ 抽選済み状態で戻ってきた場合は入口へ戻す */
+function checkAlreadyDrawn(){
+  if(sessionStorage.getItem("drawCompleted") === "true"){
+    location.replace("index.html");
+  }
+}
 
+checkAlreadyDrawn();
+
+window.addEventListener("pageshow", () => {
+  checkAlreadyDrawn();
+});
 document
   .querySelectorAll('input[name="q3"]')
   .forEach(r => {
