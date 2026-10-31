@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>アンケート</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>アンケート</h1>
+
+<form id="surveyForm">
+
+<h3>Q1 ご来場目的</h3>
+
+<label>
+  <input type="radio" name="q1" value="1" required>
+  出展関係者
+</label><br>
+
+<label>
+  <input type="radio" name="q1" value="2">
+  気になるブースがあった
+</label><br>
+
+<label>
+  <input type="radio" name="q1" value="3">
+  就職活動
+</label><br>
+
+<label>
+  <input type="radio" name="q1" value="4">
+  その他
+</label>
+
+<br><br>
+
+<h3>Q2 ご年齢</h3>
+
+<select id="q2" required>
+
+  <option value="">
+    選択してください
+  </option>
+
+  <option value="1">10代</option>
+  <option value="2">20代</option>
+  <option value="3">30代</option>
+  <option value="4">40代</option>
+  <option value="5">50代</option>
+  <option value="6">60代以上</option>
+
+</select>
+
+<br><br>
+
+<h3>Q3 学校・ご職業</h3>
+
+<p><strong>学生の方</strong></p>
+
+<label>
+<input type="radio" name="q3" value="1">
+小中学生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="2">
+高校生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="3">
+専門学生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="4">
+高専生
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="5">
+大学生（学部）
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="6">
+大学院生（修士）
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="7">
+大学院生（博士）
+</label><br>
+
+<p><strong>学生以外の方</strong></p>
+
+<label>
+<input type="radio" name="q3" value="8">
+公務員
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="9">
+自営業
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="10">
+会社員
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="11">
+パート・アルバイト
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="12">
+家事専業
+</label><br>
+
+<label>
+<input type="radio" name="q3" value="13">
+その他
+</label>
+
+<br><br>
+
+<div id="studentQ4" style="display:none;">
+
+<h3>Q4 学校所在地</h3>
+
+<label>
+<input type="radio" name="q4student" value="1">
+愛知県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="2">
+静岡県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="3">
+岐阜県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="4">
+三重県
+</label><br>
+
+<label>
+<input type="radio" name="q4student" value="5">
+その他
+</label>
+<input
+  type="text"
+  id="q4StudentOther"
+  placeholder="その他内容"
+>
+
+</div>
+
+
+
+<br><br>
+
+<h3>
+Q5 存在は何で知りましたか？
+（複数回答可）
+</h3>
+
+<label>
+<input type="checkbox" name="q5" value="1">
+今日の展示会
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="2">
+CM
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="3">
+求人サイト
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="4">
+製品を使ったことがある
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="5">
+取引がある
+</label><br>
+
+<label>
+<input type="checkbox" name="q5" value="6">
+その他
+</label>
+<input
+  type="text"
+  id="q5Other"
+  placeholder="その他内容"
+>
+
+
+<br><br>
+<h3>
+Q6 ブースを見て興味が湧きましたか？
+</h3>
+
+<label>
+<input type="radio" name="q6" value="1">
+とても湧いた
+</label><br>
+
+<label>
+<input type="radio" name="q6" value="2">
+湧いた
+</label><br>
+
+<label>
+<input type="radio" name="q6" value="3">
+あまり湧かなかった
+</label><br>
+
+<label>
+<input type="radio" name="q6" value="4">
+湧かなかった
+</label>
+
+<br><br>
+
+<h3>
+Q7 印象に残ったもの
+（複数回答可）
+</h3>
+
+<label>
+<input type="checkbox" name="q7" value="1">
+ウエハ展示
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="2">
+工程フロー
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="3">
+サステナビリティ／環境活動
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="4">
+採用情報
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="5">
+巨大工場航空写真
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="6">
+フラッシュメモリ立体大型模型
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="7">
+工場でのAI/DX活用
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="8">
+生成AIの「中」を旅してみよう<br>
+（SSDの活躍について）
+</label><br>
+
+<label>
+<input type="checkbox" name="q7" value="9">
+その他
+</label>
+
+<input
+  type="text"
+  id="q7Other"
+  placeholder="その他内容"
+>
+
+<br><br>
+
+<br><br>
+
+<h3>ご意見・ご感想</h3>
+
+<textarea
+  id="comment"
+  rows="5"
+  cols="40"
+></textarea>
+
+<br><br>
+
+<button type="submit">
+  抽選へ進む
+</button>
+
+</form>
+
+<script>
+/* ▼ 抽選済み状態で戻ってきた場合は入口へ戻す */
+function checkAlreadyDrawn(){
+  if(sessionStorage.getItem("drawCompleted") === "true"){
+    location.replace("index.html");
+  }
+}
+
+checkAlreadyDrawn();
+
+window.addEventListener("pageshow", () => {
+  checkAlreadyDrawn();
+});
+document
+  .querySelectorAll('input[name="q3"]')
+  .forEach(r => {
+
+    r.addEventListener("change", () => {
+
+      const val = Number(r.value);
+
+      if(val <= 7){
+
+        document.getElementById("studentQ4")
+          .style.display = "block";
+
+      }else{
+
+        document.getElementById("studentQ4")
+          .style.display = "none";
+
+      }
+
+    });
+
+  });
+
+document
+.getElementById("surveyForm")
+.addEventListener("submit",(e)=>{
+
+  e.preventDefault();
+
+  const q5 =
+    [...document.querySelectorAll(
+      'input[name="q5"\]:checked'
+    )].map(x => x.value);
+
+  const q7 =
+    [...document.querySelectorAll(
+      'input[name="q7"\]:checked'
+    )].map(x => x.value);
+
+
+  let q4 = "";
+
+  const q3 =
+    document.querySelector(
+      'input[name="q3"\]:checked'
+    )?.value || "";
+
+  if(q3 && Number(q3) <= 7){
+
+    q4 =
+      document.querySelector(
+        'input[name="q4student"\]:checked'
+      )?.value || "";
+
+  
+  }
+
+  const survey = {
+
+    q1:
+      document.querySelector(
+        'input[name="q1"\]:checked'
+      )?.value || "",
+
+    q2:
+      document.getElementById("q2").value,
+
+    q3,
+
+    q4,
+
+    q5,
+
+    q6:
+      document.querySelector(
+        'input[name="q6"\]:checked'
+      )?.value || "",
+
+    q7,
+    q7Other:
+      document.getElementById(
+        "q7Other"
+      )?.value || "",
+
+    comment:
+      document.getElementById(
+        "comment"
+      ).value,
+
+
+    q4StudentOther:
+      document.getElementById(
+        "q4StudentOther"
+      )?.value || "",
+
+    q5Other:
+      document.getElementById(
+        "q5Other"
+      )?.value || "",
+  };
+
+  sessionStorage.setItem(
+    "survey",
+    JSON.stringify(survey)
+  );
+
+  location.href = "lottery.html";
+
+});
+
+</script>
+
+</body>
+</html>
