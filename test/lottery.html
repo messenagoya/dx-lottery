@@ -273,23 +273,23 @@ let drawing = false;
 const prizeData = [
   {
     id: "microSD",
-    name: "マイクロSDカード"
+    name: "microSDカード"
   },
   {
     id: "bottle",
-    name: "水筒"
+    name: "ハイドロフラスク水筒"
   },
   {
     id: "tote",
-    name: "トートバッグ"
+    name: "付箋布バッグ"
   },
   {
     id: "memo500",
-    name: "SDカード型メモ"
+    name: "microSD型メモ帳"
   },
   {
     id: "memo100",
-    name: "SDカード型付箋"
+    name: "microSD型付箋"
   }
 ];
  
@@ -309,22 +309,11 @@ window.addEventListener("pageshow", () => {
 
 /* ▼ 在庫取得 */
 async function getStock(id){
-  const s = await getDoc(doc(db,"stock",id));
+  const s = await getDoc(doc(db,"stock_test",id));
   return s.exists()? s.data().count : 0;
 }
 
-/* ▼ 在庫トランザクション（安全版） */
-async function decreaseStockSafe(id){
-  const ref = doc(db,"stock",id);
-  return await runTransaction(db, async (t)=>{
-    const snap = await t.get(ref);
-    if(!snap.exists()) return false;
-    const count = snap.data().count;
-    if(count <= 0) return false;
-    t.update(ref,{count:count-1});
-    return true;
-  });
-}
+
 /* ▼ 在庫数に比例して景品を選び、1個予約する */
 async function reserveWeightedPrize(){
 
@@ -334,7 +323,7 @@ async function reserveWeightedPrize(){
 
     for(const item of prizeData){
 
-      const stockRef = doc(db, "stock", item.id);
+      const stockRef = doc(db,"stock_test",item.id);
       const stockSnap = await transaction.get(stockRef);
 
       if(!stockSnap.exists()){
@@ -440,11 +429,11 @@ function playRouletteVegas(prize){
   result.innerHTML="🎰 ルーレット回転中…";
 
   const angles={
-    "マイクロSDカード":30,
-    "水筒":90,
-    "トートバッグ":150,
-    "SDカード型メモ":210,
-    "SDカード型付箋":270,
+    "microSDカード":30,
+    "ハイドロフラスク水筒":90,
+    "付箋布バッグ":150,
+    "microSD型メモ帳":210,
+    "microSD型付箋":270,
     "景品終了":330
   };
 
@@ -534,9 +523,14 @@ function playGachagachaEffect(prize){
   area.innerHTML="";
 
   const color=prizeColorMap[
-    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
-      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
-  ];
+    {
+      "microSDカード":"microSD",
+      "ハイドロフラスク水筒":"bottle",
+      "付箋布バッグ":"tote",
+      "microSD型メモ帳":"memo500",
+      "microSD型付箋":"memo100"
+    }[prize]
+  ] || "gray";
 
   for(let i=0;i<8;i++){
     const c=document.createElement("div");
@@ -584,9 +578,14 @@ function playFukubikiEffect(prize){
   area.innerHTML="";
 
   const color=prizeColorMap[
-    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
-      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
-  ];
+    {
+      "microSDカード":"microSD",
+      "ハイドロフラスク水筒":"bottle",
+      "付箋布バッグ":"tote",
+      "microSD型メモ帳":"memo500",
+      "microSD型付箋":"memo100"
+    }[prize]
+  ] || "gray";
 
   for(let i=0;i<6;i++){
     const b=document.createElement("div");
@@ -641,7 +640,7 @@ function playRandomEffect(prize){
 
 /* ▼ entryNumber 自動採番（安全版） */
 async function getNextEntryNumber(){
-  const ref = doc(db,"meta","entryCounter");
+  const ref = doc(db,"meta_test","entryCounter");
   const next = await runTransaction(db, async (t)=>{
     const snap = await t.get(ref);
     const current = snap.exists()? snap.data().lastNumber : 0;
@@ -692,7 +691,7 @@ document.getElementById("start").addEventListener("click", async () => {
     ) || {};
 
   /* surveyコレクションへ保存 */
-  currentSurveyDocRef = await addDoc(collection(db, "survey"), {
+  currentSurveyDocRef = await addDoc(collection(db, "survey_test"), {
     ...surveyData,
 
     entryNumber: currentEntryNumber,
@@ -730,7 +729,7 @@ document.getElementById("staffConfirm")
       if(currentStockId){
 
         const stockRef =
-          doc(db, "stock", currentStockId);
+          doc(db, "stock_test", currentStockId);
 
         const confirmed =
           await runTransaction(db, async (transaction) => {
