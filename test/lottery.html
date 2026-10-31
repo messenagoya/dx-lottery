@@ -711,6 +711,221 @@ p{
       rotate(900deg);
   }
 }
+/* =========================
+   ▼ 激レア景品専用演出
+========================= */
+/* 画面全体を覆うレア演出 */
+.rareOverlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle,
+      #fff8b0 0%,
+      #ffd700 25%,
+      #ff9800 55%,
+      #111 100%
+    );
+
+  z-index: 10000;
+
+  animation:
+    rareOverlayFlash 0.8s ease-out;
+}
+/* 画面全体を覆うレア演出 */
+.confetti {
+  position: fixed;
+  top: -20px;
+  width: 12px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 10001;
+  animation: confettiFall linear forwards;
+}
+
+/* 登場時フラッシュ */
+@keyframes rareOverlayFlash {
+
+  0% {
+    background: white;
+    opacity: 0;
+  }
+
+  30% {
+    background: #fff700;
+    opacity: 1;
+  }
+
+  60% {
+    background: #ff9800;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 激レア文字 */
+.rareTitle {
+  color: white;
+
+  font-size:
+    clamp(52px, 15vw, 110px);
+
+  font-weight: 900;
+
+  text-align: center;
+
+  animation:
+    rareTitlePop 0.8s
+    cubic-bezier(.2,1.8,.4,1);
+
+  text-shadow:
+    0 0 10px white,
+    0 0 20px gold,
+    0 0 40px orange,
+    0 0 70px red;
+}
+
+@keyframes rareTitlePop {
+
+  0% {
+    transform:
+      scale(0.1)
+      rotate(-12deg);
+
+    opacity: 0;
+  }
+
+  60% {
+    transform:
+      scale(1.35)
+      rotate(5deg);
+  }
+
+  100% {
+    transform:
+      scale(1)
+      rotate(0deg);
+
+    opacity: 1;
+  }
+}
+
+/* 激レア景品名 */
+.rarePrizeName {
+  margin-top: 25px;
+
+  padding: 20px 30px;
+
+  color: #d50000;
+
+  background: white;
+
+  border: 8px solid gold;
+  border-radius: 25px;
+
+  font-size:
+    clamp(34px, 9vw, 70px);
+
+  font-weight: 900;
+
+  text-align: center;
+
+  box-shadow:
+    0 0 20px white,
+    0 0 40px gold,
+    0 0 70px orange;
+
+  animation:
+    rarePrizePulse 0.8s
+    ease-in-out infinite alternate;
+}
+
+@keyframes rarePrizePulse {
+
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
+
+/* 背景をキラキラさせる */
+.rareOverlay::before,
+.rareOverlay::after {
+  content: "✨";
+
+  position: absolute;
+
+  font-size: 80px;
+
+  animation:
+    rareSparkle 0.8s
+    ease-in-out infinite alternate;
+}
+
+.rareOverlay::before {
+  top: 10%;
+  left: 8%;
+}
+
+.rareOverlay::after {
+  right: 8%;
+  bottom: 10%;
+}
+
+@keyframes rareSparkle {
+
+  from {
+    transform:
+      scale(0.7)
+      rotate(0deg);
+
+    opacity: 0.5;
+  }
+
+  to {
+    transform:
+      scale(1.4)
+      rotate(30deg);
+
+    opacity: 1;
+  }
+}
+#rareTestBtn {
+  width: min(90vw, 500px);
+  min-height: 80px;
+  margin: 20px auto;
+
+  font-size: 26px;
+  font-weight: 900;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff9800,
+      #ffd700,
+      #ff5722
+    );
+
+  border: 5px solid white;
+  border-radius: 18px;
+
+  box-shadow:
+    0 0 15px gold,
+    0 0 30px orange;
+}
 </style>
 </head>
 <body>
@@ -732,7 +947,11 @@ p{
   style="display:none;">
   🔄 もう一度テストする
 </button>
- 
+<button
+  id="rareTestBtn"
+  style="display:block;">
+  ✨ 激レア演出テスト
+</button>
 <!-- ▼ ルーレット -->
 <div class="rouletteContainer" id="rouletteBox">
   <div class="roulettePointer"></div>
@@ -1021,6 +1240,62 @@ function showPrizeResult(prize){
 
   launchConfetti();
 }
+ /* ▼ 激レア景品判定 */
+function isRarePrize(prize){
+  return (
+    prize === "microSDカード" ||
+    prize === "ハイドロフラスク水筒"
+  );
+}
+
+
+/* ▼ 激レア専用演出 */
+function showRarePrizeResult(prize){
+
+  /* すでに表示されていたら削除 */
+  const oldOverlay =
+    document.querySelector(".rareOverlay");
+
+  if(oldOverlay){
+    oldOverlay.remove();
+  }
+
+  /* 画面全体を覆う演出を作成 */
+  const overlay =
+    document.createElement("div");
+
+  overlay.className = "rareOverlay";
+
+  overlay.innerHTML = `
+    <div class="rareTitle">
+      ✨ 激レア!! ✨
+    </div>
+
+    <div class="rarePrizeName">
+      ${prize}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  /* 紙吹雪 */
+  launchConfetti();
+
+  /* 2.8秒後にレア画面を消す */
+  setTimeout(() => {
+
+    overlay.remove();
+
+    /* 通常の結果画面へ切り替える */
+    showPrizeResult(prize);
+
+    document
+      .getElementById("staffConfirm")
+      .style.display = "inline-block";
+
+  }, 2800);
+}
+
 /* ▼ 派手なルーレット */
 function playRouletteVegas(prize){
 
@@ -1110,11 +1385,18 @@ function playRouletteVegas(prize){
     center.textContent = prize;
     center.style.display = "block";
 
-    showPrizeResult(prize);
+    if(isRarePrize(prize)){
 
-    document
-      .getElementById("staffConfirm")
-      .style.display = "inline-block";
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
+    }
 
   }, 5200);
 }
@@ -1245,11 +1527,18 @@ function playSlotEffect(prize){
   /* ▼ 景品発表 */
   setTimeout(() => {
 
-    showPrizeResult(prize);
+    if(isRarePrize(prize)){
 
-    document
-      .getElementById("staffConfirm")
-      .style.display = "inline-block";
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
+    }
 
   }, 3600);
 }
@@ -1386,11 +1675,18 @@ function playGachagachaEffect(prize){
       area.querySelectorAll(".capsule");
 
     if(capsules.length === 0){
+      if(isRarePrize(prize)){
+
+      showRarePrizeResult(prize);
+
+    }else{
+
       showPrizeResult(prize);
 
       document
         .getElementById("staffConfirm")
         .style.display = "inline-block";
+    }
 
       return;
     }
@@ -1419,12 +1715,18 @@ function playGachagachaEffect(prize){
   ========================= */
   setTimeout(() => {
 
-    showPrizeResult(prize);
+    if(isRarePrize(prize)){
 
-    document
-      .getElementById("staffConfirm")
-      .style.display =
-        "inline-block";
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
+    }
 
   }, 3900);
 }
@@ -1573,11 +1875,18 @@ function playFukubikiEffect(prize){
 
   setTimeout(() => {
 
-    showPrizeResult(prize);
+    if(isRarePrize(prize)){
 
-    document
-      .getElementById("staffConfirm")
-      .style.display = "inline-block";
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
+    }
 
   }, 5400);
 }
@@ -1770,5 +2079,15 @@ document.getElementById("retryTest")
 
     location.replace("index.html");
   });
+/* ▼ テスト版：激レア演出だけ確認 */
+document
+  .getElementById("rare*estBtn")
+  .addEventListener("clic*", () => {
+
+    showRarePrizeResul*(
+      "microSDカード"
+    );
+
+  });*
 </script>
 </html>
