@@ -1,36 +1,218 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Firestore 在庫初期化</title>
+<meta charset="UTF-8">
+<title>テスト用 在庫設定</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 30px;
+  background: #eef7ff;
+}
+
+button {
+  display: block;
+  width: min(90%, 400px);
+  margin: 20px auto;
+  padding: 20px;
+  font-size: 22px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+}
+
+.day1 {
+  background: #007bff;
+}
+
+.day2 {
+  background: #28a745;
+}
+
+.day3 {
+  background: #ff9800;
+}
+
+.warning {
+  color: #d32f2f;
+  font-weight: bold;
+}
+</style>
 </head>
+
 <body>
-  <h1>Firestore 在庫初期化ページ</h1>
-  <p>このページを開くと在庫データが登録されます。</p>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+<h1>テスト用 在庫設定</h1>
 
-    const firebaseConfig = {
-      apiKey: "あなたのAPIキー",
-      authDomain: "dx-lottery.firebaseapp.com",
-      projectId: "dx-lottery",
-      storageBucket: "dx-lottery.firebasestorage.app",
-      messagingSenderId: "13800927311",
-      appId: "1:13800927311:web:633a52a3919394c6f9ba3a"
-    };
+<p class="warning">
+これはテストサイト専用です
+</p>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+<p>
+設定する日を選択してください。
+</p>
 
-    await setDoc(doc(db, "stock", "microSD"), { name: "マイクロSDカード", count: 1 });
-    await setDoc(doc(db, "stock", "bottle"), { name: "水筒", count: 1 });
-    await setDoc(doc(db, "stock", "tote"), { name: "トートバッグ", count: 300 });
-    await setDoc(doc(db, "stock", "memo500"), { name: "SDカード型メモ", count: 500 });
-    await setDoc(doc(db, "stock", "memo100"), { name: "SDカード型付箋", count: 100 });
+<button class="day1" id="day1">
+1日目の在庫を設定
+</button>
 
-    alert("在庫初期化完了！");
-  </script>
+<button class="day2" id="day2">
+2日目の在庫を設定
+</button>
+
+<button class="day3" id="day3">
+3日目の在庫を設定
+</button>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+
+import {
+  getFirestore,
+  setDoc,
+  doc
+}
+from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "本番と同じAPIキーをここに入れる",
+  authDomain: "dx-lottery.firebaseapp.com",
+  projectId: "dx-lottery",
+  storageBucket: "dx-lottery.firebasestorage.app",
+  messagingSenderId: "13800927311",
+  appId: "1:13800927311:web:633a52a3919394c6f9ba3a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+/* =========================
+   日別在庫設定
+========================= */
+
+const stockData = {
+
+  day1: {
+    memo500: 150,
+    memo100: 150,
+    tote: 400,
+    bottle: 1,
+    microSD: 1
+  },
+
+  day2: {
+    memo500: 150,
+    memo100: 150,
+    tote: 150,
+    bottle: 1,
+    microSD: 1
+  },
+
+  day3: {
+    memo500: 200,
+    memo100: 200,
+    tote: 150,
+    bottle: 1,
+    microSD: 1
+  }
+
+};
+
+
+/* =========================
+   景品名
+========================= */
+
+const prizeNames = {
+
+  memo500: "microSD型メモ帳",
+
+  memo100: "microSD型付箋",
+
+  tote: "付箋布バッグ",
+
+  bottle: "ハイドロフラスク水筒",
+
+  microSD: "microSDカード"
+
+};
+
+
+/* =========================
+   在庫設定処理
+========================= */
+
+async function setupStock(day){
+
+  const data = stockData[day];
+
+  if(!data){
+    alert("在庫設定データがありません。");
+    return;
+  }
+
+  const confirmResult = confirm(
+    day === "day1"
+      ? "1日目のテスト在庫を設定しますか？"
+      : day === "day2"
+      ? "2日目のテスト在庫を設定しますか？"
+      : "3日目のテスト在庫を設定しますか？"
+  );
+
+  if(!confirmResult){
+    return;
+  }
+
+  for(const [id, count] of Object.entries(data)){
+
+    await setDoc(
+      doc(db, "stock_test", id),
+      {
+        name: prizeNames[id],
+        count: count,
+        reserved: 0
+      }
+    );
+
+  }
+
+  alert(
+    "テスト用在庫を設定しました！"
+  );
+}
+
+
+/* =========================
+   ボタン
+========================= */
+
+document
+  .getElementById("day1")
+  .addEventListener("click", () => {
+    setupStock("day1");
+  });
+
+document
+  .getElementById("day2")
+  .addEventListener("click", () => {
+    setupStock("day2");
+  });
+
+document
+  .getElementById("day3")
+  .addEventListener("click", () => {
+    setupStock("day3");
+  });
+
+</script>
+
 </body>
 </html>
