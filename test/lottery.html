@@ -168,10 +168,23 @@ p{
 }
 
 #staffConfirm{
-  width: min(90vw, 500px);
-  min-height: 100px;
-  font-size: clamp(26px, 5vw, 36px);
-  font-weight: bold;
+  width: min(94vw, 600px);
+  min-height: 120px;
+  padding: 20px;
+  margin-top: 25px;
+
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: 900;
+
+  background: #28a745;
+  color: white;
+
+  border: 5px solid white;
+  border-radius: 18px;
+
+  box-shadow:
+    0 6px 15px rgba(0,0,0,0.3),
+    0 0 20px rgba(40,167,69,0.6);
 }
 
  #retryTest{
@@ -262,7 +275,7 @@ p{
 <button
   id="staffConfirm"
   style="display:none;">
-  説明員が確認しました
+  景品をお渡ししました
 </button>
  
 <button
@@ -917,7 +930,7 @@ document.getElementById("staffConfirm")
       console.error(error);
 
       button.disabled = false;
-      button.textContent = "説明員が確認しました";
+      button.textContent = "景品をお渡ししました";
 
       alert("確認処理に失敗しました。");
     }
