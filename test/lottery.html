@@ -848,17 +848,11 @@ function playFukubikiEffect(prize){
   }, 1200);
 }
 
-/* ▼ ランダム演出（あみだ削除済） */
+/* ▼ テスト用：スロット固定 */
 function playRandomEffect(prize){
   hideAllEffects();
-  const effects=[
-    playRouletteVegas,
-    playSlotEffect,
-    playGachagachaEffect,
-    playFukubikiEffect
-  ];
-  const f=effects[Math.floor(Math.random()*effects.length)];
-  f(prize);
+
+  playSlotEffect(prize);
 }
 
 /* ▼ entryNumber 自動採番（安全版） */
