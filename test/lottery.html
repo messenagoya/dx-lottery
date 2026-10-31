@@ -103,34 +103,198 @@ button:hover { transform: scale(1.05); }
 .spinAnim { animation:reelSpin 0.18s linear infinite; }
 @keyframes reelSpin { 0%{transform:translateY(0);} 100%{transform:translateY(-15px);} }
 
-/* ▼ ガチャガチャ */
+/* =========================
+   ▼ 派手なガチャガチャ
+========================= */
+
 .gachaMachine {
-  width: 260px;
-  height: 300px;
-  margin: 20px auto;
+  width: min(88vw, 360px);
+  height: 430px;
+  margin: 25px auto;
   position: relative;
+  transform-origin: center bottom;
 }
+
+/* ガチャ本体が激しく揺れる */
+.gachaShake {
+  animation: gachaShake 0.12s linear infinite;
+}
+
+@keyframes gachaShake {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(-7px, 3px) rotate(-2deg);
+  }
+
+  50% {
+    transform: translate(7px, -3px) rotate(2deg);
+  }
+
+  75% {
+    transform: translate(-5px, -2px) rotate(-1deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+/* 透明ドーム */
 .gachaDome {
-  width: 200px;
-  height: 200px;
-  background: #eee;
+  width: 300px;
+  height: 300px;
+
+  max-width: 82vw;
+  max-height: 82vw;
+
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      rgba(255,255,255,0.95),
+      rgba(135,206,250,0.65) 55%,
+      rgba(0,123,255,0.35)
+    );
+
+  border: 8px solid #1976d2;
   border-radius: 50%;
+
   margin: 0 auto;
+
   position: relative;
   overflow: hidden;
+
+  box-shadow:
+    inset 0 0 25px white,
+    0 0 20px #2196f3,
+    0 10px 20px rgba(0,0,0,0.25);
 }
+
+/* カプセル */
 #gachaCapsules .capsule {
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
+
   border-radius: 50%;
+
   position: absolute;
+
+  border: 4px solid white;
+
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.35),
+    inset 0 0 8px rgba(255,255,255,0.8);
 }
+
+/* カプセルを激しく跳ねさせる */
+.capsuleShuffle {
+  animation:
+    capsuleShuffle 0.32s
+    ease-in-out infinite alternate;
+}
+
+@keyframes capsuleShuffle {
+
+  0% {
+    transform:
+      translate(-18px, 12px)
+      rotate(0deg)
+      scale(1);
+  }
+
+  25% {
+    transform:
+      translate(22px, -20px)
+      rotate(120deg)
+      scale(1.1);
+  }
+
+  50% {
+    transform:
+      translate(-10px, -30px)
+      rotate(240deg)
+      scale(0.9);
+  }
+
+  75% {
+    transform:
+      translate(28px, 15px)
+      rotate(360deg)
+      scale(1.15);
+  }
+
+  100% {
+    transform:
+      translate(-25px, 25px)
+      rotate(540deg)
+      scale(1);
+  }
+}
+
+/* 出口 */
 .gachaExit {
-  width: 80px;
-  height: 40px;
-  background: #ccc;
+  width: 130px;
+  height: 70px;
+
+  background:
+    linear-gradient(
+      #555,
+      #222
+    );
+
   margin: 10px auto;
-  border-radius: 10px;
+
+  border: 6px solid gold;
+  border-radius: 15px;
+
+  position: relative;
+
+  box-shadow:
+    inset 0 0 15px black,
+    0 0 15px gold;
+}
+
+/* 当選カプセル落下 */
+.gachaWinnerCapsule {
+  z-index: 100;
+
+  animation:
+    capsuleDrop 0.9s
+    cubic-bezier(.3,.8,.4,1)
+    forwards !important;
+}
+
+@keyframes capsuleDrop {
+
+  0% {
+    transform:
+      translateY(0)
+      rotate(0deg)
+      scale(1);
+  }
+
+  60% {
+    transform:
+      translateY(210px)
+      rotate(540deg)
+      scale(1.25);
+  }
+
+  80% {
+    transform:
+      translateY(245px)
+      rotate(650deg)
+      scale(1.45);
+  }
+
+  100% {
+    transform:
+      translateY(235px)
+      rotate(720deg)
+      scale(1.35);
+  }
 }
 
 /* ▼ 福引き */
@@ -764,58 +928,170 @@ const prizeColorMap = {
   memo100: "white"
 };
 
+/* ▼ 派手なガチャガチャ */
 function playGachagachaEffect(prize){
+
   hideAllEffects();
 
-  document.getElementById("staffConfirm")
-    .style.display = "none";
-  const box=document.getElementById("gachaEffect");
-  box.style.display="block";
+  const box =
+    document.getElementById("gachaEffect");
 
-  const area=document.getElementById("gachaCapsules");
-  area.innerHTML="";
+  const machine =
+    box.querySelector(".gachaMachine");
 
-  const color=prizeColorMap[
-    {
-      "microSDカード":"microSD",
-      "ハイドロフラスク水筒":"bottle",
-      "付箋布バッグ":"tote",
-      "microSD型メモ帳":"memo500",
-      "microSD型付箋":"memo100"
-    }[prize]
-  ] || "gray";
+  const area =
+    document.getElementById("gachaCapsules");
 
-  for(let i=0;i<8;i++){
-    const c=document.createElement("div");
-    c.className="capsule";
-    c.style.background=color;
-    c.style.left=Math.random()*160+"px";
-    c.style.top=Math.random()*160+"px";
-    c.style.transition="transform 1.2s ease";
-    area.appendChild(c);
+  const result =
+    document.getElementById("result");
+
+  box.style.display = "block";
+
+  result.innerHTML =
+    "🎯 ガチャ抽選中…";
+
+  area.innerHTML = "";
+
+  /* 景品ごとの色 */
+  const prizeIdMap = {
+    "microSDカード": "microSD",
+    "ハイドロフラスク水筒": "bottle",
+    "付箋布バッグ": "tote",
+    "microSD型メモ帳": "memo500",
+    "microSD型付箋": "memo100"
+  };
+
+  const winnerColor =
+    prizeColorMap[
+      prizeIdMap[prize]
+    ] || "gray";
+
+
+  /* ▼ カプセル生成 */
+  const colors = [
+    "red",
+    "blue",
+    "green",
+    "gold",
+    "orange",
+    "purple",
+    "pink",
+    "white"
+  ];
+
+  for(let i = 0; i < 12; i++){
+
+    const capsule =
+      document.createElement("div");
+
+    capsule.className =
+      "capsule capsuleShuffle";
+
+    capsule.style.background =
+      colors[
+        Math.floor(
+          Math.random() * colors.length
+        )
+      ];
+
+    capsule.style.left =
+      (35 + Math.random() * 200) + "px";
+
+    capsule.style.top =
+      (35 + Math.random() * 190) + "px";
+
+    /*
+      カプセルごとに少しタイミングを
+      ずらして動きをバラバラにする
+    */
+    capsule.style.animationDelay =
+      (Math.random() * 0.25) + "s";
+
+    area.appendChild(capsule);
   }
 
-  for(const c of area.children){
-    c.style.transform="rotate(720deg)";
-  }
 
+  /* ▼ 本体ブルブル開始 */
+  machine.classList.add("gachaShake");
+
+
+  /* =========================
+     2.3秒後
+     シャッフル停止
+  ========================= */
   setTimeout(() => {
-    const last = area.children[0];
 
-    if(last){
-      last.style.transition = "top 0.8s ease, left 0.8s ease";
-      last.style.top = "240px";
-      last.style.left = "90px";
-    }
+    machine.classList.remove(
+      "gachaShake"
+    );
 
-    setTimeout(() => {
+    const capsules =
+      area.querySelectorAll(".capsule");
+
+    capsules.forEach(capsule => {
+
+      capsule.classList.remove(
+        "capsuleShuffle"
+      );
+
+    });
+
+    result.innerHTML =
+      "✨ カプセル決定！ ✨";
+
+  }, 2300);
+
+
+  /* =========================
+     当選カプセルを落とす
+  ========================= */
+  setTimeout(() => {
+
+    const capsules =
+      area.querySelectorAll(".capsule");
+
+    if(capsules.length === 0){
       showPrizeResult(prize);
 
-      document.getElementById("staffConfirm").style.display =
-        "inline-block";
-    }, 900);
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
 
-  }, 1200);
+      return;
+    }
+
+    const winner =
+      capsules[
+        Math.floor(
+          Math.random() *
+          capsules.length
+        )
+      ];
+
+    /* 当選景品の色へ */
+    winner.style.background =
+      winnerColor;
+
+    winner.classList.add(
+      "gachaWinnerCapsule"
+    );
+
+  }, 2700);
+
+
+  /* =========================
+     景品発表
+  ========================= */
+  setTimeout(() => {
+
+    showPrizeResult(prize);
+
+    document
+      .getElementById("staffConfirm")
+      .style.display =
+        "inline-block";
+
+  }, 3900);
 }
 
 /* ▼ 福引き完全版 */
@@ -877,11 +1153,11 @@ function playFukubikiEffect(prize){
   }, 1200);
 }
 
-/* ▼ テスト用：スロット固定 */
+/* ▼ テスト用：ガチャ固定 */
 function playRandomEffect(prize){
   hideAllEffects();
 
-  playSlotEffect(prize);
+  playGachagachaEffect(prize);
 }
 
 /* ▼ entryNumber 自動採番（安全版） */
