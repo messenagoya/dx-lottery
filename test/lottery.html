@@ -599,50 +599,112 @@ function playRouletteVegas(prize){
   },50);
 }
 
-/* ▼ スロット */
+/* ▼ 派手なスロット */
 function playSlotEffect(prize){
+
   hideAllEffects();
 
-  const r1=document.getElementById("reel1");
-  const r2=document.getElementById("reel2");
-  const r3=document.getElementById("reel3");
-  const result=document.getElementById("result");
+  const r1 = document.getElementById("reel1");
+  const r2 = document.getElementById("reel2");
+  const r3 = document.getElementById("reel3");
+  const result = document.getElementById("result");
 
-  document.getElementById("slotBox").style.display="flex";
-  result.innerHTML="🎰 スロット回転中…";
+  document.getElementById("slotBox").style.display = "flex";
 
-  const sym=["7","BAR","★"];
+  result.innerHTML = "🎰 スロット回転中…";
 
-  function spin(reel){ reel.classList.add("spinAnim"); }
+  const symbols = [
+    "7",
+    "BAR",
+    "★",
+    "💎",
+    "🔥"
+  ];
 
-  function stopReel(reel,time){
-    setTimeout(()=>{
-      reel.classList.remove("spinAnim");
-      let shakes=0;
-      const shakeInt=setInterval(()=>{
-        reel.style.transform=`translateY(${(shakes%2===0)?'-10px':'10px'})`;
-        shakes++;
-        if(shakes>6){
-          clearInterval(shakeInt);
-          reel.style.transform="scale(1.2)";
-          reel.innerHTML=sym[Math.floor(Math.random()*sym.length)];
-          setTimeout(()=>reel.style.transform="scale(1)",120);
-        }
-      },60);
-    },time);
+  /* 高速で絵柄を切り替える */
+  function startReel(reel){
+
+    reel.style.transform = "scale(1)";
+    reel.style.boxShadow =
+      "0 0 20px gold, 0 0 35px orange";
+
+    return setInterval(() => {
+
+      reel.textContent =
+        symbols[
+          Math.floor(
+            Math.random() * symbols.length
+          )
+        ];
+
+    }, 70);
   }
 
-  spin(r1); spin(r2); spin(r3);
-  stopReel(r1,1600);
-  stopReel(r2,2200);
-  stopReel(r3,2800);
+  const spin1 = startReel(r1);
+  const spin2 = startReel(r2);
+  const spin3 = startReel(r3);
 
-  setTimeout(()=>{
+  /* リール停止演出 */
+  function stopReel(reel, timer, symbol){
+
+    setTimeout(() => {
+
+      clearInterval(timer);
+
+      reel.textContent = symbol;
+
+      reel.style.transition =
+        "transform 0.15s ease";
+
+      reel.style.transform =
+        "scale(1.35)";
+
+      reel.style.background =
+        "radial-gradient(circle, #fff700, #ff9800, #111)";
+
+      setTimeout(() => {
+
+        reel.style.transform =
+          "scale(1)";
+
+      }, 250);
+
+    }, timer.stopTime);
+  }
+
+  /* 停止時間 */
+  spin1.stopTime = 1400;
+  spin2.stopTime = 2200;
+  spin3.stopTime = 3000;
+
+  stopReel(r1, spin1, "7");
+  stopReel(r2, spin2, "7");
+  stopReel(r3, spin3, "7");
+
+  /* 全リール停止後 */
+  setTimeout(() => {
+
+    r1.style.transform = "scale(1.15)";
+    r2.style.transform = "scale(1.15)";
+    r3.style.transform = "scale(1.15)";
+
+    r1.style.boxShadow = "0 0 35px gold";
+    r2.style.boxShadow = "0 0 35px gold";
+    r3.style.boxShadow = "0 0 35px gold";
+
+  }, 3100);
+
+  /* 景品発表 */
+  setTimeout(() => {
+
     showPrizeResult(prize);
+
     document.getElementById("staffConfirm")
       .style.display = "inline-block";
-  },3000);
+
+  }, 3500);
 }
+
 
 /* ▼ ガチャガチャ完全版 */
 const prizeColorMap = {
