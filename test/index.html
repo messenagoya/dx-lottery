@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>展示会 抽選エントリー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="entry-container">
+
+    <h1>展示会 抽選エントリー</h1>
+
+    <p>
+      アンケート回答後に抽選へご参加いただけます
+    </p>
+
+    <div class="entry-buttons">
+
+      <button id="startEntry">
+        アンケートを開始する
+      </button>
+
+      <script>
+      document.getElementById("startEntry")
+        .addEventListener("click", () => {
+
+          /* 前の来場者の情報を削除 */
+          sessionStorage.removeItem("survey");
+          sessionStorage.removeItem("drawCompleted");
+
+          location.href = "questionnaire.html";
+        });
+      </script>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
