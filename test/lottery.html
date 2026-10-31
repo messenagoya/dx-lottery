@@ -1359,7 +1359,6 @@ function playGachagachaEffect(prize){
 
   }, 3900);
 }
-
 /* ▼ ガラガラ福引き演出 */
 function playFukubikiEffect(prize){
 
@@ -1377,9 +1376,21 @@ function playFukubikiEffect(prize){
   const result =
     document.getElementById("result");
 
+  if(!box || !drum || !ball || !result){
+    console.error(
+      "福引き演出に必要な要素が見つかりません"
+    );
+
+    alert(
+      "福引き演出の読み込みに失敗しました。"
+    );
+
+    return;
+  }
+
   box.style.display = "block";
 
-  /* 前回の演出をリセット */
+  /* 前回の演出状態をリセット */
   drum.classList.remove(
     "garaSpinFast",
     "garaSlowDown",
@@ -1391,6 +1402,13 @@ function playFukubikiEffect(prize){
   );
 
   ball.style.display = "none";
+
+  /*
+    クラスを付け直したときに
+    アニメーションを再実行させる
+  */
+  void drum.offsetWidth;
+  void ball.offsetWidth;
 
   /* 景品ごとの玉の色 */
   const prizeIdMap = {
@@ -1410,9 +1428,7 @@ function playFukubikiEffect(prize){
     winnerColor;
 
 
-  /* =========================
-     ① 高速回転
-  ========================= */
+  /* ① 高速回転 */
 
   result.innerHTML =
     "🎯 ガラガラ抽選中…";
@@ -1422,15 +1438,19 @@ function playFukubikiEffect(prize){
   );
 
 
-  /* =========================
-     ② 高速回転 → 減速
-  ========================= */
+  /* ② 高速回転から減速 */
 
   setTimeout(() => {
 
     drum.classList.remove(
       "garaSpinFast"
     );
+
+    /*
+      高速回転終了時の状態を
+      一度再描画してから減速開始
+    */
+    void drum.offsetWidth;
 
     drum.classList.add(
       "garaSlowDown"
@@ -1442,15 +1462,15 @@ function playFukubikiEffect(prize){
   }, 2200);
 
 
-  /* =========================
-     ③ ガタン！
-  ========================= */
+  /* ③ ガタン！ */
 
   setTimeout(() => {
 
     drum.classList.remove(
       "garaSlowDown"
     );
+
+    void drum.offsetWidth;
 
     drum.classList.add(
       "garaStopShock"
@@ -1462,7 +1482,37 @@ function playFukubikiEffect(prize){
   }, 3800);
 
 
- 
+  /* ④ 当選玉が出る */
+
+  setTimeout(() => {
+
+    ball.style.display = "block";
+
+    void ball.offsetWidth;
+
+    ball.classList.add(
+      "garaBallDrop"
+    );
+
+    result.innerHTML =
+      "✨ 当選玉が出ました！ ✨";
+
+  }, 4250);
+
+
+  /* ⑤ 景品発表 */
+
+  setTimeout(() => {
+
+    showPrizeResult(prize);
+
+    document
+      .getElementById("staffConfirm")
+      .style.display = "inline-block";
+
+  }, 5400);
+}
+
 /* ▼ テスト用：福引き固定 */
 function playRandomEffect(prize){
   hideAllEffects();
