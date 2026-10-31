@@ -173,7 +173,19 @@ p{
   font-size: clamp(26px, 5vw, 36px);
   font-weight: bold;
 }
-
+<button
+  id="retryTest"
+  style="display:none;">
+  🔄 もう一度テストする
+</button>
+ #retryTest{
+  width:min(90vw,500px);
+  min-height:80px;
+  margin-top:20px;
+  font-size:28px;
+  font-weight:bold;
+  background:#6c757d;
+}
 #result{
   margin-top:30px !important;
   font-size: clamp(42px, 8vw, 64px) !important;
@@ -483,7 +495,7 @@ function launchConfetti(){
     "#ff9100"
   ];
 
-  for(let i = 0; i < 80; i++){
+  for(let i = 0; i < 140; i++){
 
     const confetti =
       document.createElement("div");
@@ -1058,6 +1070,8 @@ document.getElementById("staffConfirm")
 
       button.textContent = "確認済み";
       button.style.background = "#28a745";
+      document.getElementById("retryTest")
+      .style.display = "inline-block";
 
       alert(
         "説明員が確認しました（番号: " +
@@ -1073,6 +1087,15 @@ document.getElementById("staffConfirm")
 
       alert("確認処理に失敗しました。");
     }
+  });
+ /* ▼ テスト版：もう一度最初から */
+document.getElementById("retryTest")
+  .addEventListener("click", () => {
+
+    sessionStorage.removeItem("survey");
+    sessionStorage.removeItem("drawCompleted");
+
+    location.replace("index.html");
   });
 </script>
 </html>
