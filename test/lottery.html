@@ -629,9 +629,11 @@ function playSlotEffect(prize){
   const r3 = document.getElementById("reel3");
   const result = document.getElementById("result");
 
-  document.getElementById("slotBox").style.display = "flex";
+  document.getElementById("slotBox")
+    .style.display = "flex";
 
-  result.innerHTML = "🎰 スロット回転中…";
+  result.innerHTML =
+    "🎰 スロット回転中…";
 
   const symbols = [
     "7",
@@ -641,10 +643,12 @@ function playSlotEffect(prize){
     "🔥"
   ];
 
-  /* 高速で絵柄を切り替える */
+  /* ▼ リール回転開始 */
   function startReel(reel){
 
-    reel.style.transform = "scale(1)";
+    reel.style.background =
+      "radial-gradient(circle,#fff,#ccc,#111)";
+
     reel.style.boxShadow =
       "0 0 20px gold, 0 0 35px orange";
 
@@ -660,71 +664,96 @@ function playSlotEffect(prize){
     }, 70);
   }
 
-  const spin1 = startReel(r1);
-  const spin2 = startReel(r2);
-  const spin3 = startReel(r3);
+  const timer1 = startReel(r1);
+  const timer2 = startReel(r2);
+  const timer3 = startReel(r3);
 
-  /* リール停止演出 */
-  function stopReel(reel, timer, symbol){
-
-    setTimeout(() => {
-
-      clearInterval(timer);
-
-      reel.textContent = symbol;
-
-      reel.style.transition =
-        "transform 0.15s ease";
-
-      reel.style.transform =
-        "scale(1.35)";
-
-      reel.style.background =
-        "radial-gradient(circle, #fff700, #ff9800, #111)";
-
-      setTimeout(() => {
-
-        reel.style.transform =
-          "scale(1)";
-
-      }, 250);
-
-    }, timer.stopTime);
-  }
-
-  /* 停止時間 */
-  spin1.stopTime = 1400;
-  spin2.stopTime = 2200;
-  spin3.stopTime = 3000;
-
-  stopReel(r1, spin1, "7");
-  stopReel(r2, spin2, "7");
-  stopReel(r3, spin3, "7");
-
-  /* 全リール停止後 */
+  /* ▼ 左停止 */
   setTimeout(() => {
 
-    r1.style.transform = "scale(1.15)";
-    r2.style.transform = "scale(1.15)";
-    r3.style.transform = "scale(1.15)";
+    clearInterval(timer1);
 
-    r1.style.boxShadow = "0 0 35px gold";
-    r2.style.boxShadow = "0 0 35px gold";
-    r3.style.boxShadow = "0 0 35px gold";
+    r1.textContent = "7";
 
-  }, 3100);
+    r1.style.transform =
+      "scale(1.4)";
 
-  /* 景品発表 */
+    r1.style.background =
+      "radial-gradient(circle,#fff700,#ff9800,#111)";
+
+    setTimeout(() => {
+      r1.style.transform = "scale(1)";
+    }, 300);
+
+  }, 1400);
+
+
+  /* ▼ 中央停止 */
+  setTimeout(() => {
+
+    clearInterval(timer2);
+
+    r2.textContent = "7";
+
+    r2.style.transform =
+      "scale(1.4)";
+
+    r2.style.background =
+      "radial-gradient(circle,#fff700,#ff9800,#111)";
+
+    setTimeout(() => {
+      r2.style.transform = "scale(1)";
+    }, 300);
+
+  }, 2200);
+
+
+  /* ▼ 右停止 */
+  setTimeout(() => {
+
+    clearInterval(timer3);
+
+    r3.textContent = "7";
+
+    r3.style.transform =
+      "scale(1.4)";
+
+    r3.style.background =
+      "radial-gradient(circle,#fff700,#ff9800,#111)";
+
+    setTimeout(() => {
+      r3.style.transform = "scale(1)";
+    }, 300);
+
+  }, 3000);
+
+
+  /* ▼ 777完成 */
+  setTimeout(() => {
+
+    r1.style.boxShadow =
+      "0 0 40px gold";
+
+    r2.style.boxShadow =
+      "0 0 40px gold";
+
+    r3.style.boxShadow =
+      "0 0 40px gold";
+
+  }, 3200);
+
+
+  /* ▼ 景品発表 */
   setTimeout(() => {
 
     showPrizeResult(prize);
 
-    document.getElementById("staffConfirm")
+    document
+      .getElementById("staffConfirm")
       .style.display = "inline-block";
 
-  }, 3500);
+  }, 3600);
 }
-
 
 /* ▼ ガチャガチャ完全版 */
 const prizeColorMap = {
