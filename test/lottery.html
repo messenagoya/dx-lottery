@@ -173,11 +173,7 @@ p{
   font-size: clamp(26px, 5vw, 36px);
   font-weight: bold;
 }
-<button
-  id="retryTest"
-  style="display:none;">
-  🔄 もう一度テストする
-</button>
+
  #retryTest{
   width:min(90vw,500px);
   min-height:80px;
@@ -268,7 +264,12 @@ p{
   style="display:none;">
   説明員が確認しました
 </button>
-
+ 
+<button
+  id="retryTest"
+  style="display:none;">
+  🔄 もう一度テストする
+</button>
  
 <!-- ▼ ルーレット -->
 <div class="rouletteContainer" id="rouletteBox">
@@ -479,12 +480,12 @@ function hideAllEffects(){
   document.getElementById("fukubikiEffect").style.display="none";
   document.getElementById("staffConfirm").style.display="none";
 }
-
-/* ▼ ルーレット */
-function playRouletteVegas(prize){
-  hideAllEffects();
 /* ▼ 紙吹雪 */
 function launchConfetti(){
+
+  document
+    .querySelectorAll(".confetti")
+    .forEach(item => item.remove());
 
   const colors = [
     "#ff1744",
@@ -525,7 +526,8 @@ function launchConfetti(){
     }, 5000);
   }
 }
- /* ▼ 豪華な抽選結果表示 */
+
+/* ▼ 豪華な抽選結果表示 */
 function showPrizeResult(prize){
 
   const result =
@@ -541,6 +543,10 @@ function showPrizeResult(prize){
 
   launchConfetti();
 }
+/* ▼ ルーレット */
+function playRouletteVegas(prize){
+  hideAllEffects();
+
   const wheel=document.getElementById("rouletteWheel");
   const center=document.getElementById("rouletteCenter");
   const result=document.getElementById("result");
@@ -583,64 +589,7 @@ function showPrizeResult(prize){
 /* ▼ スロット */
 function playSlotEffect(prize){
   hideAllEffects();
- /* ▼ 紙吹雪 */
-function launchConfetti(){
 
-  const colors = [
-    "#ff1744",
-    "#ffd600",
-    "#00e676",
-    "#2979ff",
-    "#d500f9",
-    "#ff9100"
-  ];
-
-  for(let i = 0; i < 80; i++){
-
-    const confetti =
-      document.createElement("div");
-
-    confetti.className = "confetti";
-
-    confetti.style.left =
-      Math.random() * 100 + "vw";
-
-    confetti.style.background =
-      colors[
-        Math.floor(
-          Math.random() * colors.length
-        )
-      ];
-
-    confetti.style.animationDuration =
-      (2 + Math.random() * 2) + "s";
-
-    confetti.style.animationDelay =
-      (Math.random() * 0.8) + "s";
-
-    document.body.appendChild(confetti);
-
-    setTimeout(() => {
-      confetti.remove();
-    }, 5000);
-  }
-}
- /* ▼ 豪華な抽選結果表示 */
-function showPrizeResult(prize){
-
-  const result =
-    document.getElementById("result");
-
-  result.innerHTML = `
-    <div class="winnerResult">
-      🎉 抽選結果 🎉
-      <br>
-      ${prize}
-    </div>
-  `;
-
-  launchConfetti();
-}
   const r1=document.getElementById("reel1");
   const r2=document.getElementById("reel2");
   const r3=document.getElementById("reel3");
@@ -693,64 +642,7 @@ const prizeColorMap = {
 
 function playGachagachaEffect(prize){
   hideAllEffects();
- /* ▼ 紙吹雪 */
-function launchConfetti(){
 
-  const colors = [
-    "#ff1744",
-    "#ffd600",
-    "#00e676",
-    "#2979ff",
-    "#d500f9",
-    "#ff9100"
-  ];
-
-  for(let i = 0; i < 80; i++){
-
-    const confetti =
-      document.createElement("div");
-
-    confetti.className = "confetti";
-
-    confetti.style.left =
-      Math.random() * 100 + "vw";
-
-    confetti.style.background =
-      colors[
-        Math.floor(
-          Math.random() * colors.length
-        )
-      ];
-
-    confetti.style.animationDuration =
-      (2 + Math.random() * 2) + "s";
-
-    confetti.style.animationDelay =
-      (Math.random() * 0.8) + "s";
-
-    document.body.appendChild(confetti);
-
-    setTimeout(() => {
-      confetti.remove();
-    }, 5000);
-  }
-}
- /* ▼ 豪華な抽選結果表示 */
-function showPrizeResult(prize){
-
-  const result =
-    document.getElementById("result");
-
-  result.innerHTML = `
-    <div class="winnerResult">
-      🎉 抽選結果 🎉
-      <br>
-      ${prize}
-    </div>
-  `;
-
-  launchConfetti();
-}
   document.getElementById("staffConfirm")
     .style.display = "none";
   const box=document.getElementById("gachaEffect");
@@ -805,64 +697,7 @@ function showPrizeResult(prize){
 /* ▼ 福引き完全版 */
 function playFukubikiEffect(prize){
   hideAllEffects();
- /* ▼ 紙吹雪 */
-function launchConfetti(){
 
-  const colors = [
-    "#ff1744",
-    "#ffd600",
-    "#00e676",
-    "#2979ff",
-    "#d500f9",
-    "#ff9100"
-  ];
-
-  for(let i = 0; i < 80; i++){
-
-    const confetti =
-      document.createElement("div");
-
-    confetti.className = "confetti";
-
-    confetti.style.left =
-      Math.random() * 100 + "vw";
-
-    confetti.style.background =
-      colors[
-        Math.floor(
-          Math.random() * colors.length
-        )
-      ];
-
-    confetti.style.animationDuration =
-      (2 + Math.random() * 2) + "s";
-
-    confetti.style.animationDelay =
-      (Math.random() * 0.8) + "s";
-
-    document.body.appendChild(confetti);
-
-    setTimeout(() => {
-      confetti.remove();
-    }, 5000);
-  }
-}
- /* ▼ 豪華な抽選結果表示 */
-function showPrizeResult(prize){
-
-  const result =
-    document.getElementById("result");
-
-  result.innerHTML = `
-    <div class="winnerResult">
-      🎉 抽選結果 🎉
-      <br>
-      ${prize}
-    </div>
-  `;
-
-  launchConfetti();
-}
   document.getElementById("staffConfirm")
     .style.display = "none";
   const box=document.getElementById("fukubikiEffect");
@@ -909,8 +744,7 @@ function showPrizeResult(prize){
     }
 
     setTimeout(() => {
-      document.getElementById("result").innerHTML =
-        "🎉 抽選結果： " + prize;
+      showPrizeResult(prize);
 
       document.getElementById("staffConfirm").style.display =
         "inline-block";
