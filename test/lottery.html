@@ -1,0 +1,797 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>抽選ページ</title>
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #eef7ff;
+  padding: 20px;
+}
+
+button {
+  padding: 20px 45px;
+  border-radius: 14px;
+  border: none;
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: transform 0.1s ease;
+}
+button:hover { transform: scale(1.05); }
+
+/* ▼ ルーレット */
+.rouletteContainer {
+  width:240px;
+  height:240px;
+  margin:20px auto;
+  position:relative;
+  display:none;
+}
+.roulettePointer {
+  display:none;
+  width:0; height:0;
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-top:25px solid gold;
+  position:absolute;
+  top:-8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+}
+.rouletteWheel {
+  width:100%; height:100%; border-radius:50%;
+  background:conic-gradient(
+    #c00 0deg 30deg, #000 30deg 60deg,
+    #c00 60deg 90deg, #000 90deg 120deg,
+    #c00 120deg 150deg, #000 150deg 180deg,
+    #c00 180deg 210deg, #000 210deg 240deg,
+    #c00 240deg 270deg, #000 270deg 300deg,
+    #c00 300deg 330deg, #000 330deg 360deg
+  );
+  border:8px solid gold;
+  box-shadow:none;
+  transform:rotate(0deg);
+}
+.rouletteCenter {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%, -50%);
+  font-size:22px;
+  font-weight:bold;
+  color:#ffd700;
+  text-shadow:0 0 5px #000;
+  display:none;
+}
+
+/* ▼ スロット */
+.slotMachine { display:none; justify-content:center; gap:15px; margin:20px; }
+.reel {
+  width:80px; height:100px;
+  background:radial-gradient(circle,#fff,#ccc,#111);
+  color:#ffd700; font-size:36px; font-weight:900;
+  border-radius:10px; border:4px solid gold;
+  display:flex; justify-content:center; align-items:center;
+  text-shadow:0 0 5px #000;
+  transition:transform 0.1s ease;
+}
+.spinAnim { animation:reelSpin 0.18s linear infinite; }
+@keyframes reelSpin { 0%{transform:translateY(0);} 100%{transform:translateY(-15px);} }
+
+/* ▼ ガチャガチャ */
+.gachaMachine {
+  width: 260px;
+  height: 300px;
+  margin: 20px auto;
+  position: relative;
+}
+.gachaDome {
+  width: 200px;
+  height: 200px;
+  background: #eee;
+  border-radius: 50%;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+#gachaCapsules .capsule {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  position: absolute;
+}
+.gachaExit {
+  width: 80px;
+  height: 40px;
+  background: #ccc;
+  margin: 10px auto;
+  border-radius: 10px;
+}
+
+/* ▼ 福引き */
+.fukubikiMachine {
+  width: 260px;
+  height: 300px;
+  margin: 20px auto;
+  position: relative;
+}
+.fukubikiBody {
+  width: 200px;
+  height: 200px;
+  background: #eee;
+  border-radius: 20px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+#fukubikiBalls .ball {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  position: absolute;
+}
+.fukubikiHandle {
+  width: 40px;
+  height: 40px;
+  background: #aaa;
+  border-radius: 50%;
+  margin: 10px auto;
+}
+.fukubikiExit {
+  width: 80px;
+  height: 40px;
+  background: #ccc;
+  margin: 10px auto;
+  border-radius: 10px;
+}
+/* 抽選画面を展示会向けに大型化 */
+
+h1{
+  font-size: clamp(42px, 8vw, 64px);
+  font-weight: bold;
+}
+
+p{
+  font-size: clamp(22px, 4vw, 32px);
+}
+
+#start{
+  width: min(90vw, 500px);
+  min-height: 110px;
+  font-size: clamp(30px, 6vw, 42px);
+  font-weight: bold;
+}
+
+#staffConfirm{
+  width: min(90vw, 500px);
+  min-height: 100px;
+  font-size: clamp(26px, 5vw, 36px);
+  font-weight: bold;
+}
+
+#result{
+  margin-top:30px !important;
+  font-size: clamp(42px, 8vw, 64px) !important;
+  font-weight:bold;
+  color:#ff5722;
+  line-height:1.4;
+  text-shadow:
+    0 0 10px gold,
+    0 0 20px gold,
+    0 0 30px gold;
+}
+
+.rouletteCenter{
+  font-size: clamp(26px, 5vw, 38px);
+}
+#hotBanner,#rareBanner { margin-top:10px; display:none; }
+</style>
+</head>
+<body>
+
+<h1>抽選ページ</h1>
+<p>抽選ボタンを押して景品を確認してください。</p>
+
+<button id="start">抽選する</button>
+<div id="result" style="margin-top:20px; font-size:20px;"></div>
+ 
+<button
+  id="staffConfirm"
+  style="display:none;">
+  説明員が確認しました
+</button>
+
+ 
+<!-- ▼ ルーレット -->
+<div class="rouletteContainer" id="rouletteBox">
+  <div class="roulettePointer"></div>
+  <div class="rouletteWheel" id="rouletteWheel"></div>
+  <div class="rouletteCenter" id="rouletteCenter"></div>
+</div>
+
+<!-- ▼ スロット -->
+<div class="slotMachine" id="slotBox">
+  <div class="reel" id="reel1">7</div>
+  <div class="reel" id="reel2">BAR</div>
+  <div class="reel" id="reel3">★</div>
+</div>
+
+<div id="hotBanner">🔥 激熱チャンス！残りわずか！ 🔥</div>
+
+<!-- ▼ ガチャガチャ -->
+<div id="gachaEffect" style="display:none;">
+  <div class="gachaMachine">
+    <div class="gachaDome">
+      <div id="gachaCapsules"></div>
+    </div>
+    <div class="gachaExit"></div>
+  </div>
+</div>
+
+<!-- ▼ 福引き -->
+<div id="fukubikiEffect" style="display:none;">
+  <div class="fukubikiMachine">
+    <div class="fukubikiBody">
+      <div id="fukubikiBalls"></div>
+    </div>
+    <div class="fukubikiHandle"></div>
+    <div class="fukubikiExit"></div>
+  </div>
+</div>
+
+</body>
+<script type="module">
+/* ▼ Firebase */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, runTransaction }
+  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyBh1hBHGUJmYyyLq-CIRRuWJiDDb5xZpCM",
+  authDomain:"dx-lottery.firebaseapp.com",
+  projectId:"dx-lottery",
+  storageBucket:"dx-lottery.firebasestorage.app",
+  messagingSenderId:"13800927311",
+  appId:"1:13800927311:web:633a52a3919394c6f9ba3a"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ▼ 今回の抽選情報 */
+let currentSurveyDocRef = null;
+let currentEntryNumber = null;
+let currentPrize = "";
+let currentStockId = "";
+/* ▼ 抽選中フラグ */
+let drawing = false;
+
+const prizeData = [
+  {
+    id: "microSD",
+    name: "マイクロSDカード"
+  },
+  {
+    id: "bottle",
+    name: "水筒"
+  },
+  {
+    id: "tote",
+    name: "トートバッグ"
+  },
+  {
+    id: "memo500",
+    name: "SDカード型メモ"
+  },
+  {
+    id: "memo100",
+    name: "SDカード型付箋"
+  }
+];
+ 
+/* ▼ 抽選済みなら入口へ戻す */
+function checkAlreadyDrawn(){
+  if(sessionStorage.getItem("drawCompleted") === "true"){
+    location.replace("index.html");
+  }
+}
+
+checkAlreadyDrawn();
+
+/* ブラウザの戻る・進むで復元された場合にも確認 */
+window.addEventListener("pageshow", () => {
+  checkAlreadyDrawn();
+});
+
+/* ▼ 在庫取得 */
+async function getStock(id){
+  const s = await getDoc(doc(db,"stock",id));
+  return s.exists()? s.data().count : 0;
+}
+
+/* ▼ 在庫トランザクション（安全版） */
+async function decreaseStockSafe(id){
+  const ref = doc(db,"stock",id);
+  return await runTransaction(db, async (t)=>{
+    const snap = await t.get(ref);
+    if(!snap.exists()) return false;
+    const count = snap.data().count;
+    if(count <= 0) return false;
+    t.update(ref,{count:count-1});
+    return true;
+  });
+}
+/* ▼ 在庫数に比例して景品を選び、1個予約する */
+async function reserveWeightedPrize(){
+
+  return await runTransaction(db, async (transaction) => {
+
+    const stockList = [];
+
+    for(const item of prizeData){
+
+      const stockRef = doc(db, "stock", item.id);
+      const stockSnap = await transaction.get(stockRef);
+
+      if(!stockSnap.exists()){
+        continue;
+      }
+
+      const data = stockSnap.data();
+
+      const count = Number(data.count || 0);
+      const reserved = Number(data.reserved || 0);
+
+      const available = Math.max(0, count - reserved);
+
+      if(available > 0){
+        stockList.push({
+          ...item,
+          ref: stockRef,
+          count,
+          reserved,
+          available
+        });
+      }
+    }
+
+    const totalAvailable = stockList.reduce(
+      (total, item) => total + item.available,
+      0
+    );
+
+    if(totalAvailable <= 0){
+      return null;
+    }
+
+    let randomNumber =
+      Math.floor(Math.random() * totalAvailable);
+
+    let selected = null;
+
+    for(const item of stockList){
+
+      if(randomNumber < item.available){
+        selected = item;
+        break;
+      }
+
+      randomNumber -= item.available;
+    }
+
+    if(!selected){
+      return null;
+    }
+
+    transaction.update(selected.ref, {
+      reserved: selected.reserved + 1
+    });
+
+    return {
+      id: selected.id,
+      name: selected.name
+    };
+  });
+}
+/* ▼ 激熱バナー */
+async function checkHot(id){
+  const stock = await getStock(id);
+  const b = document.getElementById("hotBanner");
+
+  if(stock<=10 && stock>5){
+    b.textContent="🔥 激熱チャンス！残りわずか！ 🔥";
+    b.style.display="block";
+    setTimeout(()=>b.style.display="none",1500);
+  } else if(stock<=5 && stock>1){
+    b.textContent="🔥🔥 超激熱！残り5以下！ 🔥🔥";
+    b.style.display="block";
+    setTimeout(()=>b.style.display="none",2000);
+  } else if(stock===1){
+    b.textContent="✨✨ ラスト1！超プレミア！ ✨✨";
+    b.style.display="block";
+    setTimeout(()=>b.style.display="none",2500);
+  }
+}
+
+/* ▼ 全演出非表示 */
+function hideAllEffects(){
+  document.getElementById("rouletteBox").style.display="none";
+  document.getElementById("slotBox").style.display="none";
+  document.querySelector(".roulettePointer").style.display="none";
+  document.getElementById("rouletteCenter").style.display="none";
+  document.getElementById("gachaEffect").style.display="none";
+  document.getElementById("fukubikiEffect").style.display="none";
+  document.getElementById("staffConfirm").style.display="none";
+}
+
+/* ▼ ルーレット */
+function playRouletteVegas(prize){
+  hideAllEffects();
+  const wheel=document.getElementById("rouletteWheel");
+  const center=document.getElementById("rouletteCenter");
+  const result=document.getElementById("result");
+
+  document.getElementById("rouletteBox").style.display="block";
+  document.querySelector(".roulettePointer").style.display="block";
+  result.innerHTML="🎰 ルーレット回転中…";
+
+  const angles={
+    "マイクロSDカード":30,
+    "水筒":90,
+    "トートバッグ":150,
+    "SDカード型メモ":210,
+    "SDカード型付箋":270,
+    "景品終了":330
+  };
+
+  const target=angles[prize] ?? Math.floor(Math.random()*360);
+
+  wheel.style.transition="none";
+  wheel.style.transform="rotate(0deg)";
+  wheel.style.boxShadow="none";
+  center.style.display="none";
+
+  setTimeout(()=>{
+    wheel.style.transition="transform 4.5s cubic-bezier(0.05,0.9,0.1,1)";
+    wheel.style.transform=`rotate(${360*8+target}deg)`;
+
+    setTimeout(()=>{
+      result.innerHTML="🎉 抽選結果： "+prize;
+      document.getElementById("staffConfirm")
+        .style.display = "inline-block";
+      wheel.style.boxShadow="0 -35px 25px gold";
+      center.textContent=prize;
+      center.style.display="block";
+    },4500);
+  },50);
+}
+
+/* ▼ スロット */
+function playSlotEffect(prize){
+  hideAllEffects();
+  const r1=document.getElementById("reel1");
+  const r2=document.getElementById("reel2");
+  const r3=document.getElementById("reel3");
+  const result=document.getElementById("result");
+
+  document.getElementById("slotBox").style.display="flex";
+  result.innerHTML="🎰 スロット回転中…";
+
+  const sym=["7","BAR","★"];
+
+  function spin(reel){ reel.classList.add("spinAnim"); }
+
+  function stopReel(reel,time){
+    setTimeout(()=>{
+      reel.classList.remove("spinAnim");
+      let shakes=0;
+      const shakeInt=setInterval(()=>{
+        reel.style.transform=`translateY(${(shakes%2===0)?'-10px':'10px'})`;
+        shakes++;
+        if(shakes>6){
+          clearInterval(shakeInt);
+          reel.style.transform="scale(1.2)";
+          reel.innerHTML=sym[Math.floor(Math.random()*sym.length)];
+          setTimeout(()=>reel.style.transform="scale(1)",120);
+        }
+      },60);
+    },time);
+  }
+
+  spin(r1); spin(r2); spin(r3);
+  stopReel(r1,1600);
+  stopReel(r2,2200);
+  stopReel(r3,2800);
+
+  setTimeout(()=>{
+    result.innerHTML="🎉 抽選結果： "+prize;
+    document.getElementById("staffConfirm")
+      .style.display = "inline-block";
+  },3000);
+}
+
+/* ▼ ガチャガチャ完全版 */
+const prizeColorMap = {
+  microSD: "red",
+  bottle: "blue",
+  tote: "green",
+  memo500: "yellow",
+  memo100: "white"
+};
+
+function playGachagachaEffect(prize){
+  hideAllEffects();
+  document.getElementById("staffConfirm")
+    .style.display = "none";
+  const box=document.getElementById("gachaEffect");
+  box.style.display="block";
+
+  const area=document.getElementById("gachaCapsules");
+  area.innerHTML="";
+
+  const color=prizeColorMap[
+    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
+      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
+  ];
+
+  for(let i=0;i<8;i++){
+    const c=document.createElement("div");
+    c.className="capsule";
+    c.style.background=color;
+    c.style.left=Math.random()*160+"px";
+    c.style.top=Math.random()*160+"px";
+    c.style.transition="transform 1.2s ease";
+    area.appendChild(c);
+  }
+
+  for(const c of area.children){
+    c.style.transform="rotate(720deg)";
+  }
+
+  setTimeout(() => {
+    const last = area.children[0];
+
+    if(last){
+      last.style.transition = "top 0.8s ease, left 0.8s ease";
+      last.style.top = "240px";
+      last.style.left = "90px";
+    }
+
+    setTimeout(() => {
+      document.getElementById("result").innerHTML =
+        "🎉 抽選結果： " + prize;
+
+      document.getElementById("staffConfirm").style.display =
+        "inline-block";
+    }, 900);
+
+  }, 1200);
+}
+
+/* ▼ 福引き完全版 */
+function playFukubikiEffect(prize){
+  hideAllEffects();
+  document.getElementById("staffConfirm")
+    .style.display = "none";
+  const box=document.getElementById("fukubikiEffect");
+  box.style.display="block";
+
+  const area=document.getElementById("fukubikiBalls");
+  area.innerHTML="";
+
+  const color=prizeColorMap[
+    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
+      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
+  ];
+
+  for(let i=0;i<6;i++){
+    const b=document.createElement("div");
+    b.className="ball";
+    b.style.background=color;
+    b.style.left=Math.random()*160+"px";
+    b.style.top=Math.random()*160+"px";
+    b.style.transition="transform 1.2s ease";
+    area.appendChild(b);
+  }
+
+  const handle=document.querySelector(".fukubikiHandle");
+  handle.style.transition="transform 1.2s ease";
+  handle.style.transform="rotate(720deg)";
+
+  for(const b of area.children){
+    b.style.transform="rotate(720deg)";
+  }
+
+  setTimeout(() => {
+    const last = area.children[0];
+
+    if(last){
+      last.style.transition = "top 0.8s ease, left 0.8s ease";
+      last.style.top = "220px";
+      last.style.left = "85px";
+    }
+
+    setTimeout(() => {
+      document.getElementById("result").innerHTML =
+        "🎉 抽選結果： " + prize;
+
+      document.getElementById("staffConfirm").style.display =
+        "inline-block";
+    }, 900);
+
+  }, 1200);
+}
+
+/* ▼ ランダム演出（あみだ削除済） */
+function playRandomEffect(prize){
+  hideAllEffects();
+  const effects=[
+    playRouletteVegas,
+    playSlotEffect,
+    playGachagachaEffect,
+    playFukubikiEffect
+  ];
+  const f=effects[Math.floor(Math.random()*effects.length)];
+  f(prize);
+}
+
+/* ▼ entryNumber 自動採番（安全版） */
+async function getNextEntryNumber(){
+  const ref = doc(db,"meta","entryCounter");
+  const next = await runTransaction(db, async (t)=>{
+    const snap = await t.get(ref);
+    const current = snap.exists()? snap.data().lastNumber : 0;
+    const newNum = current + 1;
+    t.set(ref,{lastNumber:newNum});
+    return newNum;
+  });
+  return next;
+}
+
+/* ▼ 抽選ボタン */
+document.getElementById("start").addEventListener("click", async () => {
+  if(drawing){
+    return;
+  }
+
+  drawing = true;
+
+  document.getElementById("start").disabled = true;
+
+  const selectedPrize = await reserveWeightedPrize();
+
+  let prize = "";
+
+  if(!selectedPrize){
+
+    prize = "景品終了";
+    currentPrize = "景品終了";
+    currentStockId = "";
+
+  }else{
+
+    prize = selectedPrize.name;
+    currentPrize = selectedPrize.name;
+    currentStockId = selectedPrize.id;
+
+    await checkHot(currentStockId);
+  }
+
+  playRandomEffect(prize);
+
+  currentEntryNumber = await getNextEntryNumber();
+
+  /* questionnaire.htmlから渡されたアンケート情報取得 */
+  const surveyData =
+    JSON.parse(
+      sessionStorage.getItem("survey")
+    ) || {};
+
+  /* surveyコレクションへ保存 */
+  currentSurveyDocRef = await addDoc(collection(db, "survey"), {
+    ...surveyData,
+
+    entryNumber: currentEntryNumber,
+    prize,
+    stockId: currentStockId,
+
+    reserved:
+      currentStockId !== "",
+
+    confirmed: false,
+    timestamp: new Date()
+  });
+
+  /* このブラウザでは抽選済みにする */
+  sessionStorage.setItem("drawCompleted", "true");
+
+  drawing = false;
+});
+
+/* ▼ スタッフ確認（パスワード無し） */
+document.getElementById("staffConfirm")
+  .addEventListener("click", async () => {
+
+    if (!currentSurveyDocRef) {
+      alert("抽選結果がまだ保存されていません。");
+      return;
+    }
+
+    const button = document.getElementById("staffConfirm");
+
+    button.disabled = true;
+    button.textContent = "確認処理中...";
+
+    try {
+      if(currentStockId){
+
+        const stockRef =
+          doc(db, "stock", currentStockId);
+
+        const confirmed =
+          await runTransaction(db, async (transaction) => {
+
+            const stockSnap =
+              await transaction.get(stockRef);
+
+            if(!stockSnap.exists()){
+              return false;
+            }
+
+            const stockData = stockSnap.data();
+
+            const count =
+              Number(stockData.count || 0);
+
+            const reserved =
+              Number(stockData.reserved || 0);
+
+            if(count <= 0 || reserved <= 0){
+              return false;
+            }
+
+            transaction.update(stockRef, {
+              count: count - 1,
+              reserved: reserved - 1
+            });
+
+            return true;
+          });
+
+        if(!confirmed){
+          throw new Error(
+            "在庫の確定処理に失敗しました"
+          );
+        }
+      }
+
+      await updateDoc(currentSurveyDocRef, {
+        confirmed: true,
+        reserved: false,
+        confirmedAt: new Date()
+      });
+
+      button.textContent = "確認済み";
+      button.style.background = "#28a745";
+
+      alert(
+        "説明員が確認しました（番号: " +
+        currentEntryNumber +
+        "）"
+      );
+
+    } catch (error) {
+      console.error(error);
+
+      button.disabled = false;
+      button.textContent = "説明員が確認しました";
+
+      alert("確認処理に失敗しました。");
+    }
+  });
+</script>
+</html>
