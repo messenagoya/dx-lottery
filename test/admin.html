@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者画面（アンケート一覧）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    .stockBtn {
+      padding: 4px 10px;
+      margin: 0 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>管理者画面（アンケート一覧）</h1>
+  <p>Firestore に保存された回答を一覧表示します。</p>
+
+  <button id="csvExportBtn">
+    CSVダウンロード
+  </button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>入場番号</th>
+        <th>Q1</th>
+        <th>Q2</th>
+        <th>Q3</th>
+        <th>Q4</th>
+        <th>Q4その他</th>
+        <th>Q5</th>
+        <th>Q5その他</th>
+        <th>Q6</th>
+        <th>Q7</th>
+        <th>Q7その他</th>
+        <th>自由記述</th>
+        <th>景品</th>
+        <th>確認済み</th>
+        <th>回答日時</th>
+      </tr>
+    </thead>
+    <tbody id="surveyList"></tbody>
+  </table>
+
+  <h2>景品在庫一覧</h2>
+  <table id="stockTable">
+    <tr><th>景品名</th><th>残数</th><th>操作</th></tr>
+  </table>
+
+  <h2>在庫変更</h2>
+
+  <div>
+    <label>景品：</label>
+
+    <select id="stockItem">
+      <option value="microSD">マイクロSDカード</option>
+      <option value="bottle">水筒</option>
+      <option value="tote">トートバッグ</option>
+      <option value="memo500">SDカード型メモ</option>
+      <option value="memo100">SDカード型付箋</option>
+    </select>
+
+    <label>変更数：</label>
+
+    <input
+      type="number"
+      id="addCount"
+      value="1"
+      step="1"
+      placeholder="追加は正数、減少は負数"
+    >
+
+    <button id="addStockBtn">
+      在庫を変更する
+    </button>
+
+    <p>
+      例：10で10個追加、-3で3個減少
+    </p>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, setDoc } 
+  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBh1hBHGUJmYyyLq-CIRRuWJiDDb5xZpCM",
+  authDomain: "dx-lottery.firebaseapp.com",
+  projectId: "dx-lottery",
+  storageBucket: "dx-lottery.firebasestorage.app",
+  messagingSenderId: "13800927311",
+  appId: "1:13800927311:web:633a52a3919394c6f9ba3a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+let surveyExportData = [];
+
+/* ▼ 在庫増減（＋／−） */
+async function changeStock(id, diff){
+  const ref = doc(db, "stock", id);
+  const snap = await getDoc(ref);
+
+  if(!snap.exists()){
+    alert("在庫データが見つかりません");
+    return;
+  }
+
+  const currentCount = Number(snap.data().count || 0);
+  const reserved = Number(snap.data().reserved || 0);
+  const newCount = currentCount + diff;
+
+  if(newCount < reserved){
+    alert(
+      "予約中の景品が " +
+      reserved +
+      " 個あるため、これ以上減らせません。"
+    );
+    return;
+  }
+
+  await updateDoc(ref, {
+    count: Math.max(0, newCount)
+  });
+
+  await loadStock();
+}
+
+/* ▼ 在庫変更（正数で追加、負数で減少） */
+document.getElementById("addStockBtn")
+  .addEventListener("click", async () => {
+
+    const itemId =
+      document.getElementById("stockItem").value;
+
+    const input =
+      document.getElementById("addCount");
+
+    const changeCount =
+      Number(input.value);
+
+    if (!Number.isInteger(changeCount) || changeCount === 0) {
+      alert("0以外の整数を入力してください。");
+      return;
+    }
+
+    const ref = doc(db, "stock", itemId);
+    const snap = await getDoc(ref);
+
+    const itemName =
+      document.querySelector(
+        `#stockItem option[value="${itemId}"]`
+      ).textContent;
+
+    if (!snap.exists()) {
+
+      if (changeCount < 0) {
+        alert(
+          "在庫データが存在しないため、減らすことができません。"
+        );
+        return;
+      }
+
+      await setDoc(ref, {
+        name: itemName,
+        count: changeCount,
+        reserved: 0
+      });
+
+    } else {
+
+      const currentCount =
+        Number(snap.data().count || 0);
+
+      const reserved =
+        Number(snap.data().reserved || 0);
+
+      const requestedCount =
+        currentCount + changeCount;
+
+      /*
+        予約数より少ない在庫には変更しない。
+        例：予約2個なら、countを1にはできない。
+      */
+      if (requestedCount < reserved) {
+        alert(
+          "予約中の景品が " +
+          reserved +
+          " 個あるため、在庫をそれ未満にはできません。"
+        );
+        return;
+      }
+
+      const newCount =
+        Math.max(0, requestedCount);
+
+      await updateDoc(ref, {
+        count: newCount
+      });
+    }
+
+    const operationText =
+      changeCount > 0
+        ? Math.abs(changeCount) + "個追加しました。"
+        : Math.abs(changeCount) + "個減らしました。";
+
+    alert(operationText);
+
+    input.value = 1;
+
+    await loadStock();
+  });
+
+
+/* ▼ アンケート一覧 */
+async function loadSurvey() {
+  const list = document.getElementById("surveyList");
+  list.innerHTML = "";
+  const snapshot = await getDocs(collection(db, "survey"));
+
+  surveyExportData = [];
+
+
+  snapshot.forEach(doc => {
+    const d = doc.data();
+
+    surveyExportData.push(d);
+    list.innerHTML += `
+      <tr>
+        <td>${d.entryNumber ?? "-"}</td>
+
+        <td>${d.q1 ?? "-"}</td>
+        <td>${d.q2 ?? "-"}</td>
+        <td>${d.q3 ?? "-"}</td>
+
+        <td>${d.q4 ?? "-"}</td>
+
+        <td>
+          ${d.q4StudentOther || "-"}
+        </td>
+
+        <td>
+          ${
+            Array.isArray(d.q5)
+              ? d.q5.join(", ")
+              : "-"
+          }
+        </td>
+
+        <td>${d.q5Other ?? "-"}</td>
+
+        <td>${d.q6 ?? "-"}</td>
+
+        <td>
+          ${
+            Array.isArray(d.q7)
+              ? d.q7.join(", ")
+              : "-"
+          }
+        </td>
+        <td>
+          ${d.q7Other ?? "-"}
+        </td>
+
+        <td>${d.comment ?? "-"}</td>
+
+        <td>${d.prize ?? "-"}</td>
+
+        <td>
+          ${d.confirmed ? "○" : "×"}
+        </td>
+
+        <td>
+          ${d.timestamp?.toDate().toLocaleString() ?? "-"}
+        </td>
+
+      </tr>`;
+  });
+}
+loadSurvey();
+/* ▼ CSV出力 */
+document
+  .getElementById("csvExportBtn")
+  .addEventListener("click", () => {
+
+    if(surveyExportData.length === 0){
+      alert("出力するデータがありません");
+      return;
+    }
+
+    const header = [
+      "入場番号",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Q4その他",
+      "Q5",
+      "Q5その他",
+      "Q6",
+      "Q7",
+      "Q7その他",
+      "自由記述",
+      "景品",
+      "確認済み",
+      "回答日時"
+    ];
+
+    const rows = surveyExportData.map(d => [
+
+      d.entryNumber ?? "",
+      d.q1 ?? "",
+      d.q2 ?? "",
+      d.q3 ?? "",
+      d.q4 ?? "",
+      d.q4StudentOther ?? "",
+
+      Array.isArray(d.q5)
+        ? d.q5.join("|")
+        : "",
+
+      d.q5Other ?? "",
+
+      d.q6 ?? "",
+
+      Array.isArray(d.q7)
+        ? d.q7.join("|")
+        : "",
+
+      d.q7Other ?? "",
+
+      d.comment ?? "",
+
+      d.prize ?? "",
+
+      d.confirmed
+        ? "確認済み"
+        : "未確認",
+
+      d.timestamp?.toDate
+        ? d.timestamp
+            .toDate()
+            .toLocaleString("ja-JP")
+        : ""
+
+    ]);
+
+    const csv = [
+      header.join(","),
+      ...rows.map(r =>
+        r.map(v =>
+          `"${String(v).replace(/"/g,'""')}"`
+        ).join(",")
+      )
+    ].join("\r\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csv],
+      {
+        type:"text/csv;charset=utf-8;"
+      }
+    );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const a =
+      document.createElement("a");
+
+    a.href = url;
+
+    const now = new Date();
+
+    const fileName =
+      "survey_" +
+      now.getFullYear() +
+      String(now.getMonth()+1).padStart(2,"0") +
+      String(now.getDate()).padStart(2,"0") +
+      ".csv";
+
+    a.download = fileName;
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  });
+/* ▼ 在庫一覧 */
+async function loadStock() {
+  const table = document.getElementById("stockTable");
+  table.innerHTML = `<tr><th>景品名</th><th>残数</th><th>操作</th></tr>`;
+
+  const snapshot = await getDocs(collection(db, "stock"));
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    table.innerHTML += `
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.count}</td>
+        <td>
+          <button class="stockBtn" onclick="changeStock('${doc.id}', +1)">＋</button>
+          <button class="stockBtn" onclick="changeStock('${doc.id}', -1)">−</button>
+        </td>
+      </tr>`;
+  });
+}
+loadStock();
+
+/* ▼ changeStock をグローバル公開 */
+window.changeStock = changeStock;
+
+</script>
+
+</body>
+</html>
