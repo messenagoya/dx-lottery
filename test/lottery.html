@@ -1582,10 +1582,26 @@ function playFukubikiEffect(prize){
   }, 5400);
 }
 
-/* ▼ テスト用：ルーレット固定 */
+/* ▼ 4種類からランダム演出 */
 function playRandomEffect(prize){
+
   hideAllEffects();
-  playRouletteVegas(prize);
+
+  const effects = [
+    playRouletteVegas,
+    playSlotEffect,
+    playGachagachaEffect,
+    playFukubikiEffect
+  ];
+
+  const selectedEffect =
+    effects[
+      Math.floor(
+        Math.random() * effects.length
+      )
+    ];
+
+  selectedEffect(prize);
 }
 
 
