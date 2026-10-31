@@ -69,11 +69,11 @@
     <label>景品：</label>
 
     <select id="stockItem">
-      <option value="microSD">マイクロSDカード</option>
-      <option value="bottle">水筒</option>
-      <option value="tote">トートバッグ</option>
-      <option value="memo500">SDカード型メモ</option>
-      <option value="memo100">SDカード型付箋</option>
+      <option value="microSD">microSDカード</option>
+      <option value="bottle">ハイドロフラスク水筒</option>
+      <option value="tote">付箋布バッグ</option>
+      <option value="memo500">microSD型メモ帳</option>
+      <option value="memo100">microSD型付箋</option>
     </select>
 
     <label>変更数：</label>
@@ -115,7 +115,7 @@ let surveyExportData = [];
 
 /* ▼ 在庫増減（＋／−） */
 async function changeStock(id, diff){
-  const ref = doc(db, "stock", id);
+  const ref = doc(db, "stock_test", id);
   const snap = await getDoc(ref);
 
   if(!snap.exists()){
@@ -161,7 +161,7 @@ document.getElementById("addStockBtn")
       return;
     }
 
-    const ref = doc(db, "stock", itemId);
+    const ref = doc(db, "stock_test", itemId);
     const snap = await getDoc(ref);
 
     const itemName =
@@ -233,7 +233,7 @@ document.getElementById("addStockBtn")
 async function loadSurvey() {
   const list = document.getElementById("surveyList");
   list.innerHTML = "";
-  const snapshot = await getDocs(collection(db, "survey"));
+  const snapshot = await getDocs(collection(db, "survey_test"));
 
   surveyExportData = [];
 
@@ -410,7 +410,7 @@ async function loadStock() {
   const table = document.getElementById("stockTable");
   table.innerHTML = `<tr><th>景品名</th><th>残数</th><th>操作</th></tr>`;
 
-  const snapshot = await getDocs(collection(db, "stock"));
+  const snapshot = await getDocs(collection(db, "stock_test"));
   snapshot.forEach(doc => {
     const d = doc.data();
     table.innerHTML += `
