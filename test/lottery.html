@@ -26,47 +26,62 @@ button:hover { transform: scale(1.05); }
 
 /* ▼ ルーレット */
 .rouletteContainer {
-  width:240px;
-  height:240px;
-  margin:20px auto;
-  position:relative;
-  display:none;
+  width: min(82vw, 360px);
+  height: min(82vw, 360px);
+  margin: 30px auto;
+  position: relative;
+  display: none;
 }
+
 .roulettePointer {
-  display:none;
-  width:0; height:0;
-  border-left:15px solid transparent;
-  border-right:15px solid transparent;
-  border-top:25px solid gold;
-  position:absolute;
-  top:-8px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:20;
+  display: none;
+  width: 0;
+  height: 0;
+
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-top: 40px solid gold;
+
+  position: absolute;
+  top: -12px;
+  left: 50%;
+
+  transform: translateX(-50%);
+  z-index: 20;
+
+  filter:
+    drop-shadow(0 0 8px orange);
 }
+
 .rouletteWheel {
-  width:100%; height:100%; border-radius:50%;
-  background:conic-gradient(
-    #c00 0deg 30deg, #000 30deg 60deg,
-    #c00 60deg 90deg, #000 90deg 120deg,
-    #c00 120deg 150deg, #000 150deg 180deg,
-    #c00 180deg 210deg, #000 210deg 240deg,
-    #c00 240deg 270deg, #000 270deg 300deg,
-    #c00 300deg 330deg, #000 330deg 360deg
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+
+  background: conic-gradient(
+    #e60012 0deg 30deg,
+    #111 30deg 60deg,
+    #ff9800 60deg 90deg,
+    #111 90deg 120deg,
+    #e60012 120deg 150deg,
+    #111 150deg 180deg,
+    #ff9800 180deg 210deg,
+    #111 210deg 240deg,
+    #e60012 240deg 270deg,
+    #111 270deg 300deg,
+    #ff9800 300deg 330deg,
+    #111 330deg 360deg
   );
-  border:8px solid gold;
-  box-shadow:none;
-  transform:rotate(0deg);
-}
-.rouletteCenter {
-  position:absolute;
-  top:50%; left:50%;
-  transform:translate(-50%, -50%);
-  font-size:22px;
-  font-weight:bold;
-  color:#ffd700;
-  text-shadow:0 0 5px #000;
-  display:none;
+
+  border: 12px solid gold;
+
+  box-shadow:
+    0 0 20px gold,
+    0 0 40px orange,
+    inset 0 0 25px rgba(255,255,255,0.4);
+
+  transform: rotate(0deg);
 }
 
 /* ▼ スロット */
@@ -1006,49 +1021,103 @@ function showPrizeResult(prize){
 
   launchConfetti();
 }
-/* ▼ ルーレット */
+/* ▼ 派手なルーレット */
 function playRouletteVegas(prize){
+
   hideAllEffects();
 
-  const wheel=document.getElementById("rouletteWheel");
-  const center=document.getElementById("rouletteCenter");
-  const result=document.getElementById("result");
+  const wheel =
+    document.getElementById("rouletteWheel");
 
-  document.getElementById("rouletteBox").style.display="block";
-  document.querySelector(".roulettePointer").style.display="block";
-  result.innerHTML="🎰 ルーレット回転中…";
+  const center =
+    document.getElementById("rouletteCenter");
 
-  const angles={
-    "microSDカード":30,
-    "ハイドロフラスク水筒":90,
-    "付箋布バッグ":150,
-    "microSD型メモ帳":210,
-    "microSD型付箋":270,
-    "景品終了":330
+  const result =
+    document.getElementById("result");
+
+  const box =
+    document.getElementById("rouletteBox");
+
+  const pointer =
+    document.querySelector(".roulettePointer");
+
+  box.style.display = "block";
+  pointer.style.display = "block";
+
+  center.style.display = "none";
+
+  result.innerHTML =
+    "🎰 ルーレットスタート！！";
+
+  const angles = {
+    "microSDカード": 30,
+    "ハイドロフラスク水筒": 90,
+    "付箋布バッグ": 150,
+    "microSD型メモ帳": 210,
+    "microSD型付箋": 270,
+    "景品終了": 330
   };
 
-  const target=angles[prize] ?? Math.floor(Math.random()*360);
+  const target =
+    angles[prize] ??
+    Math.floor(Math.random() * 360);
 
-  wheel.style.transition="none";
-  wheel.style.transform="rotate(0deg)";
-  wheel.style.boxShadow="none";
-  center.style.display="none";
+  /* 前回の状態をリセット */
+  wheel.style.transition = "none";
+  wheel.style.transform = "rotate(0deg)";
 
-  setTimeout(()=>{
-    wheel.style.transition="transform 4.5s cubic-bezier(0.05,0.9,0.1,1)";
-    wheel.style.transform=`rotate(${360*8+target}deg)`;
+  void wheel.offsetWidth;
 
-    setTimeout(()=>{
-      showPrizeResult(prize);
-      document.getElementById("staffConfirm")
-        .style.display = "inline-block";
-      wheel.style.boxShadow="0 -35px 25px gold";
-      center.textContent=prize;
-      center.style.display="block";
-    },4500);
-  },50);
+  /* 高速回転開始 */
+  wheel.style.transition =
+    "transform 4.8s cubic-bezier(0.12, 0.65, 0.18, 1)";
+
+  wheel.style.transform =
+    `rotate(${360 * 12 + target}deg)`;
+
+  /* 中盤メッセージ */
+  setTimeout(() => {
+
+    result.innerHTML =
+      "🔥 まだまだ回る！！ 🔥";
+
+  }, 1400);
+
+  /* 停止直前 */
+  setTimeout(() => {
+
+    result.innerHTML =
+      "✨ どこで止まる！？ ✨";
+
+  }, 3300);
+
+  /* 停止 */
+  setTimeout(() => {
+
+    result.innerHTML =
+      "💥 STOP！！ 💥";
+
+    wheel.style.filter =
+      "brightness(1.5)";
+
+  }, 4800);
+
+  /* 景品発表 */
+  setTimeout(() => {
+
+    wheel.style.filter = "";
+
+    center.textContent = prize;
+    center.style.display = "block";
+
+    showPrizeResult(prize);
+
+    document
+      .getElementById("staffConfirm")
+      .style.display = "inline-block";
+
+  }, 5200);
 }
-
 /* ▼ 派手なスロット */
 function playSlotEffect(prize){
 
@@ -1513,11 +1582,12 @@ function playFukubikiEffect(prize){
   }, 5400);
 }
 
-/* ▼ テスト用：福引き固定 */
+/* ▼ テスト用：ルーレット固定 */
 function playRandomEffect(prize){
   hideAllEffects();
-  playFukubikiEffect(prize);
+  playRouletteVegas(prize);
 }
+
 
 /* ▼ entryNumber 自動採番（安全版） */
 async function getNextEntryNumber(){
