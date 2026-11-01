@@ -1015,7 +1015,23 @@ let currentEntryNumber = null;
 let currentStockId = "";
 /* ▼ 抽選中フラグ */
 let drawing = false;
+/* ▼ 本番用：今日の日付を取得 */
+function getTodayKey(){
 
+  const now = new Date();
+
+  const year = now.getFullYear();
+
+  const month =
+    String(now.getMonth() + 1)
+      .padStart(2, "0");
+
+  const day =
+    String(now.getDate())
+      .padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
 const prizeData = [
   {
     id: "microSD",
@@ -1987,7 +2003,16 @@ document.getElementById("start").addEventListener("click", async () => {
   });
 
   /* このブラウザでは抽選済みにする */
-  sessionStorage.setItem("drawCompleted", "true");
+  sessionStorage.setItem(
+    "drawCompleted",
+    "true"
+  );
+
+  /* ▼ 本番用：本日の参加済みを記録 */
+  localStorage.setItem(
+    "lotteryParticipatedDate",
+    getTodayKey()
+  );
 
   drawing = false;
 });
