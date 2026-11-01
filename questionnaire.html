@@ -345,6 +345,23 @@ function checkTodayParticipation(){
   const today =
     getTodayKey();
 
+  /* ▼ 日付が変わったら参加回数を1回目に戻す */
+  if(participatedDate && participatedDate !== today){
+
+    localStorage.setItem(
+      "lotteryParticipationCount",
+      "1"
+    );
+
+    sessionStorage.removeItem(
+      "drawCompleted"
+    );
+
+    sessionStorage.removeItem(
+      "survey"
+    );
+  }
+
   if(participatedDate === today){
 
     const code = prompt(
