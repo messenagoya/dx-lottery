@@ -59,6 +59,7 @@
     <thead>
       <tr>
         <th>入場番号</th>
+        <th>参加回数</th>
         <th>Q1</th>
         <th>Q2</th>
         <th>Q3</th>
@@ -477,6 +478,10 @@ async function loadSurvey() {
 
         <td>${d.entryNumber ?? "-"}</td>
 
+        <td>
+          ${d.participationCount ?? 1}回目
+        </td>
+
         <td>${d.q1 ?? "-"}</td>
         <td>${d.q2 ?? "-"}</td>
         <td>${d.q3 ?? "-"}</td>
@@ -578,6 +583,7 @@ document
 
     const header = [
       "入場番号",
+      "参加回数",
       "Q1",
       "Q2",
       "Q3",
@@ -597,6 +603,7 @@ document
     const rows = surveyExportData.map(d => [
 
       d.entryNumber ?? "",
+      d.participationCount ?? 1,
       d.q1 ?? "",
       d.q2 ?? "",
       d.q3 ?? "",
