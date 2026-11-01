@@ -338,46 +338,7 @@ button:hover { transform: scale(1.05); }
     opacity: 1;
   }
 }
-/* 当選カプセル落下 */
-.gachaWinnerCapsule {
-  z-index: 100;
 
-  animation:
-    capsuleDrop 0.9s
-    cubic-bezier(.3,.8,.4,1)
-    forwards !important;
-}
-
-@keyframes capsuleDrop {
-
-  0% {
-    transform:
-      translateY(0)
-      rotate(0deg)
-      scale(1);
-  }
-
-  60% {
-    transform:
-      translateY(210px)
-      rotate(540deg)
-      scale(1.25);
-  }
-
-  80% {
-    transform:
-      translateY(245px)
-      rotate(650deg)
-      scale(1.45);
-  }
-
-  100% {
-    transform:
-      translateY(235px)
-      rotate(720deg)
-      scale(1.35);
-  }
-}
 
 /* =========================
    ▼ ガラガラ福引き
