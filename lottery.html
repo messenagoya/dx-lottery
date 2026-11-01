@@ -1986,21 +1986,32 @@ document.getElementById("start").addEventListener("click", async () => {
     JSON.parse(
       sessionStorage.getItem("survey")
     ) || {};
+  /* ▼ 本日の参加回数 */
+  const participationCount =
+    Number(
+      localStorage.getItem(
+        "lotteryParticipationCount"
+      ) || 1
+    );
 
   /* surveyコレクションへ保存 */
-  currentSurveyDocRef = await addDoc(collection(db, "survey"), {
-    ...surveyData,
+  currentSurveyDocRef =
+    await addDoc(collection(db, "survey"), {
+      ...surveyData,
 
-    entryNumber: currentEntryNumber,
-    prize,
-    stockId: currentStockId,
+      entryNumber: currentEntryNumber,
+      participationCount: participationCount,
 
-    reserved:
-      currentStockId !== "",
+      prize,
+      stockId: currentStockId,
 
-    confirmed: false,
-    timestamp: new Date()
-  });
+      reserved:
+        currentStockId !== "",
+
+      confirmed: false,
+      timestamp: new Date()
+    });
+
 
   /* このブラウザでは抽選済みにする */
   sessionStorage.setItem(
