@@ -115,8 +115,7 @@ button:hover { transform: scale(1.05); }
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
-.spinAnim { animation:reelSpin 0.18s linear infinite; }
-@keyframes reelSpin { 0%{transform:translateY(0);} 100%{transform:translateY(-15px);} }
+
 
 /* =========================
    ▼ 派手なガチャガチャ
@@ -659,7 +658,10 @@ p{
 .rouletteCenter{
   font-size: clamp(26px, 5vw, 38px);
 }
-#hotBanner,#rareBanner { margin-top:10px; display:none; }
+#hotBanner {
+  margin-top: 10px;
+  display: none;
+}
 /* ▼ 当選結果の登場演出 */
 @keyframes winnerPop {
   0% {
@@ -688,15 +690,7 @@ p{
 }
 
 /* ▼ 紙吹雪 */
-.confetti {
-  position: fixed;
-  top: -20px;
-  width: 12px;
-  height: 20px;
-  pointer-events: none;
-  z-index: 9999;
-  animation: confettiFall linear forwards;
-}
+
 
 @keyframes confettiFall {
   0% {
@@ -738,7 +732,7 @@ p{
   animation:
     rareOverlayFlash 0.8s ease-out;
 }
-/* 画面全体を覆うレア演出 */
+/* 激レア画面より手前に紙吹雪を表示 */
 .confetti {
   position: fixed;
   top: -20px;
@@ -998,7 +992,7 @@ const db = getFirestore(app);
 /* ▼ 今回の抽選情報 */
 let currentSurveyDocRef = null;
 let currentEntryNumber = null;
-let currentPrize = "";
+
 let currentStockId = "";
 /* ▼ 抽選中フラグ */
 let drawing = false;
@@ -1916,13 +1910,13 @@ document.getElementById("start").addEventListener("click", async () => {
   if(!selectedPrize){
 
     prize = "景品終了";
-    currentPrize = "景品終了";
+
     currentStockId = "";
 
   }else{
 
     prize = selectedPrize.name;
-    currentPrize = selectedPrize.name;
+
     currentStockId = selectedPrize.id;
 
     await checkHot(currentStockId);
