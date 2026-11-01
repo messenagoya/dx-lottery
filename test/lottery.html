@@ -1237,6 +1237,28 @@ function showPrizeResult(prize){
 
   launchConfetti();
 }
+
+/* ▼ 景品がある場合だけ受け渡し確認を表示 */
+function showStaffConfirm(prize){
+
+  const staffButton =
+    document.getElementById("staffConfirm");
+
+  if(prize === "景品終了"){
+
+    staffButton.style.display = "none";
+
+    /* テスト版なので再テストボタンを表示 */
+    document
+      .getElementById("retryTest")
+      .style.display = "inline-block";
+
+    return;
+  }
+
+  staffButton.style.display =
+    "inline-block";
+}
  /* ▼ 激レア景品判定 */
 function isRarePrize(prize){
   return (
@@ -1286,9 +1308,7 @@ function showRarePrizeResult(prize){
     /* 通常の結果画面へ切り替える */
     showPrizeResult(prize);
 
-    document
-      .getElementById("staffConfirm")
-      .style.display = "inline-block";
+    showStaffConfirm(prize);
 
   }, 2800);
 }
@@ -1390,9 +1410,7 @@ function playRouletteVegas(prize){
 
       showPrizeResult(prize);
 
-      document
-        .getElementById("staffConfirm")
-        .style.display = "inline-block";
+      showStaffConfirm(prize);
     }
 
   }, 5200);
@@ -1532,9 +1550,7 @@ function playSlotEffect(prize){
 
       showPrizeResult(prize);
 
-      document
-        .getElementById("staffConfirm")
-        .style.display = "inline-block";
+      showStaffConfirm(prize);
     }
 
   }, 3600);
@@ -1689,9 +1705,7 @@ function playGachagachaEffect(prize){
 
       showPrizeResult(prize);
 
-      document
-        .getElementById("staffConfirm")
-        .style.display = "inline-block";
+      showStaffConfirm(prize);
     }
 
       return;
@@ -1740,9 +1754,7 @@ function playGachagachaEffect(prize){
 
       showPrizeResult(prize);
 
-      document
-        .getElementById("staffConfirm")
-        .style.display = "inline-block";
+      showStaffConfirm(prize);
     }
 
   }, 3900);
@@ -1900,9 +1912,7 @@ function playFukubikiEffect(prize){
 
       showPrizeResult(prize);
 
-      document
-        .getElementById("staffConfirm")
-        .style.display = "inline-block";
+      showStaffConfirm(prize);
     }
 
   }, 5400);
