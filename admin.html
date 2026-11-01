@@ -30,7 +30,27 @@
 
   <h1>管理者画面（アンケート一覧）</h1>
   <p>Firestore に保存された回答を一覧表示します。</p>
+  <label for="sortOrder">
+    並び順：
+  </label>
 
+  <select id="sortOrder">
+    <option value="entryAsc">
+      入場番号：昇順
+    </option>
+
+    <option value="entryDesc">
+      入場番号：降順
+    </option>
+
+    <option value="dateDesc">
+      回答日時：新しい順
+    </option>
+
+    <option value="dateAsc">
+      回答日時：古い順
+    </option>
+  </select>
   <button id="csvExportBtn">
     CSVダウンロード
   </button>
@@ -52,6 +72,7 @@
         <th>自由記述</th>
         <th>景品</th>
         <th>確認済み</th>
+        <th>予約状態／操作</th>
         <th>回答日時</th>
       </tr>
     </thead>
@@ -69,11 +90,11 @@
     <label>景品：</label>
 
     <select id="stockItem">
-      <option value="microSD">マイクロSDカード</option>
-      <option value="bottle">水筒</option>
-      <option value="tote">トートバッグ</option>
-      <option value="memo500">SDカード型メモ</option>
-      <option value="memo100">SDカード型付箋</option>
+      <option value="microSD">microSDカード</option>
+      <option value="bottle">ハイドロフラスク水筒</option>
+      <option value="tote">付箋布バッグ</option>
+      <option value="memo500">microSD型メモ帳</option>
+      <option value="memo100">microSD型付箋</option>
     </select>
 
     <label>変更数：</label>
@@ -97,8 +118,16 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, setDoc } 
-  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBh1hBHGUJmYyyLq-CIRRuWJiDDb5xZpCM",
@@ -228,22 +257,224 @@ document.getElementById("addStockBtn")
     await loadStock();
   });
 
+/* ▼ 個別の景品予約を解除 */
+async function releaseReservation(surveyId){
 
+  const approved = confirm(
+    "この回答の景品予約を解除しますか？\n" +
+    "景品の実在庫数は減りません。"
+  );
+
+  if(!approved){
+    return;
+  }
+
+  try {
+
+    await runTransaction(
+      db,
+      async transaction => {
+
+        const surveyRef =
+          doc(
+            db,
+            "survey",
+            surveyId
+          );
+
+        const surveySnap =
+          await transaction.get(
+            surveyRef
+          );
+
+        if(!surveySnap.exists()){
+          throw new Error(
+            "アンケートデータが見つかりません。"
+          );
+        }
+
+        const surveyData =
+          surveySnap.data();
+
+        if(surveyData.confirmed){
+          throw new Error(
+            "すでに景品受け渡し済みです。"
+          );
+        }
+
+        if(surveyData.reservationReleased){
+          throw new Error(
+            "この予約はすでに解除されています。"
+          );
+        }
+
+        if(
+          !surveyData.reserved ||
+          !surveyData.stockId
+        ){
+          throw new Error(
+            "解除できる予約がありません。"
+          );
+        }
+
+        const stockRef =
+          doc(
+            db,
+            "stock",
+            surveyData.stockId
+          );
+
+        const stockSnap =
+          await transaction.get(
+            stockRef
+          );
+
+        if(!stockSnap.exists()){
+          throw new Error(
+            "景品の在庫データが見つかりません。"
+          );
+        }
+
+        const stockData =
+          stockSnap.data();
+
+        const reserved =
+          Number(
+            stockData.reserved || 0
+          );
+
+        if(reserved <= 0){
+          throw new Error(
+            "在庫側に予約数が残っていません。"
+          );
+        }
+
+        /* 在庫数は変えず予約数だけ減らす */
+        transaction.update(
+          stockRef,
+          {
+            reserved: reserved - 1
+          }
+        );
+
+        /* アンケートへ解除履歴を残す */
+        transaction.update(
+          surveyRef,
+          {
+            reserved: false,
+            reservationReleased: true,
+            reservationReleasedAt:
+              new Date()
+          }
+        );
+      }
+    );
+
+    alert(
+      "この回答の景品予約を解除しました。"
+    );
+
+    await loadSurvey();
+    await loadStock();
+
+  } catch(error){
+
+    console.error(error);
+
+    alert(
+      error.message ||
+      "予約解除に失敗しました。"
+    );
+  }
+}
 /* ▼ アンケート一覧 */
 async function loadSurvey() {
-  const list = document.getElementById("surveyList");
+
+  const list =
+    document.getElementById("surveyList");
+
   list.innerHTML = "";
-  const snapshot = await getDocs(collection(db, "survey"));
 
-  surveyExportData = [];
+  const snapshot =
+    await getDocs(
+      collection(db, "survey")
+    );
+
+  /* Firestoreデータを配列へ */
+  const surveyData = [];
+
+  snapshot.forEach(snapshotDoc => {
+
+    surveyData.push({
+      documentId: snapshotDoc.id,
+      ...snapshotDoc.data()
+    });
+
+  });
+
+  /* ▼ 現在選択されている並び順 */
+  const sortOrder =
+    document.getElementById("sortOrder").value;
+
+  /* ▼ 並び替え */
+  surveyData.sort((a, b) => {
+
+    if(sortOrder === "entryAsc"){
+
+      return (
+        Number(a.entryNumber || 0) -
+        Number(b.entryNumber || 0)
+      );
+
+    }
+
+    if(sortOrder === "entryDesc"){
+
+      return (
+        Number(b.entryNumber || 0) -
+        Number(a.entryNumber || 0)
+      );
+
+    }
+
+    if(sortOrder === "dateDesc"){
+
+      const timeA =
+        a.timestamp?.toMillis?.() || 0;
+
+      const timeB =
+        b.timestamp?.toMillis?.() || 0;
+
+      return timeB - timeA;
+
+    }
+
+    if(sortOrder === "dateAsc"){
+
+      const timeA =
+        a.timestamp?.toMillis?.() || 0;
+
+      const timeB =
+        b.timestamp?.toMillis?.() || 0;
+
+      return timeA - timeB;
+
+    }
+
+    return 0;
+  });
 
 
-  snapshot.forEach(doc => {
-    const d = doc.data();
+  /* CSVも画面と同じ順番にする */
+  surveyExportData = surveyData;
 
-    surveyExportData.push(d);
+
+  /* ▼ テーブル表示 */
+  surveyData.forEach(d => {
+
     list.innerHTML += `
       <tr>
+
         <td>${d.entryNumber ?? "-"}</td>
 
         <td>${d.q1 ?? "-"}</td>
@@ -275,6 +506,7 @@ async function loadSurvey() {
               : "-"
           }
         </td>
+
         <td>
           ${d.q7Other ?? "-"}
         </td>
@@ -288,12 +520,51 @@ async function loadSurvey() {
         </td>
 
         <td>
-          ${d.timestamp?.toDate().toLocaleString() ?? "-"}
+          ${
+            d.confirmed
+              ? "受け渡し済み"
+              : d.reservationReleased
+                ? "解除済み"
+                : d.reserved && d.stockId
+                  ? `
+                    <button
+                      class="releaseBtn"
+                      onclick="releaseReservation('${d.documentId}')">
+                      予約解除
+                    </button>
+                  `
+                  : "予約なし"
+          }
         </td>
 
-      </tr>`;
+        <td>
+          ${
+            d.timestamp?.toDate
+              ? d.timestamp
+                  .toDate()
+                  .toLocaleString("ja-JP")
+              : "-"
+          }
+        </td>
+
+      </tr>
+    `;
+
   });
 }
+
+
+/* ▼ 並び順変更 */
+document
+  .getElementById("sortOrder")
+  .addEventListener("change", () => {
+
+    loadSurvey();
+
+  });
+
+
+/* ▼ 初期表示 */
 loadSurvey();
 /* ▼ CSV出力 */
 document
@@ -428,7 +699,8 @@ loadStock();
 
 /* ▼ changeStock をグローバル公開 */
 window.changeStock = changeStock;
-
+window.releaseReservation =
+  releaseReservation;
 </script>
 
 </body>
