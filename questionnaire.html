@@ -357,6 +357,20 @@ function checkTodayParticipation(){
     /* ▼ 係員用アンロックコード */
     if(code === "2026"){
 
+      /* ▼ 次回の参加回数を増やす */
+      const currentCount =
+        Number(
+          localStorage.getItem(
+            "lotteryParticipationCount"
+          ) || 1
+        );
+
+      localStorage.setItem(
+        "lotteryParticipationCount",
+        String(currentCount + 1)
+      );
+
+      /* ▼ 当日参加ロック解除 */
       localStorage.removeItem(
         "lotteryParticipatedDate"
       );
