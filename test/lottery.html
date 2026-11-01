@@ -1265,16 +1265,7 @@ function showPrizeResult(prize){
 
   const result =
     document.getElementById("result");
-  const winnerBall =
-    document.getElementById("gachaWinnerBall");
 
-  /* 前回の当選カプセルをリセット */
-  winnerBall.classList.remove(
-    "gachaBallDrop"
-  );
-
-  winnerBall.style.display = "none";
-  winnerBall.style.background = "";
   result.innerHTML = `
     <div class="winnerResult">
       🎉 抽選結果 🎉
@@ -1613,7 +1604,16 @@ function playGachagachaEffect(prize){
 
   const result =
     document.getElementById("result");
+  const winnerBall =
+    document.getElementById("gachaWinnerBall");
 
+  /* 前回の当選カプセルをリセット */
+  winnerBall.classList.remove(
+    "gachaBallDrop"
+  );
+
+  winnerBall.style.display = "none";
+  winnerBall.style.background = "";
   box.style.display = "block";
 
   result.innerHTML =
