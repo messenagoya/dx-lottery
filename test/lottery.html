@@ -1265,7 +1265,16 @@ function showPrizeResult(prize){
 
   const result =
     document.getElementById("result");
+  const winnerBall =
+    document.getElementById("gachaWinnerBall");
 
+  /* 前回の当選カプセルをリセット */
+  winnerBall.classList.remove(
+    "gachaBallDrop"
+  );
+
+  winnerBall.style.display = "none";
+  winnerBall.style.background = "";
   result.innerHTML = `
     <div class="winnerResult">
       🎉 抽選結果 🎉
@@ -1727,6 +1736,7 @@ function playGachagachaEffect(prize){
       return;
     }
 
+    /* ▼ ドーム内の当選カプセルを選ぶ */
     const winner =
       capsules[
         Math.floor(
@@ -1735,12 +1745,22 @@ function playGachagachaEffect(prize){
         )
       ];
 
-    /* 当選景品の色へ */
+    /* 一瞬だけ当選色にする */
     winner.style.background =
       winnerColor;
 
-    winner.classList.add(
-      "gachaWinnerCapsule"
+    /* ▼ 台座側の当選カプセルを表示 */
+    winnerBall.style.background =
+      winnerColor;
+
+    winnerBall.style.display =
+      "block";
+
+    /* アニメーションを確実に再スタート */
+    void winnerBall.offsetWidth;
+
+    winnerBall.classList.add(
+      "gachaBallDrop"
     );
 
   }, 2700);
