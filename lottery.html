@@ -26,128 +26,605 @@ button:hover { transform: scale(1.05); }
 
 /* ▼ ルーレット */
 .rouletteContainer {
-  width:240px;
-  height:240px;
-  margin:20px auto;
-  position:relative;
-  display:none;
+  width: min(82vw, 360px);
+  height: min(82vw, 360px);
+  margin: 30px auto;
+  position: relative;
+  display: none;
 }
+
 .roulettePointer {
-  display:none;
-  width:0; height:0;
-  border-left:15px solid transparent;
-  border-right:15px solid transparent;
-  border-top:25px solid gold;
-  position:absolute;
-  top:-8px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:20;
+  display: none;
+  width: 0;
+  height: 0;
+
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-top: 40px solid gold;
+
+  position: absolute;
+  top: -12px;
+  left: 50%;
+
+  transform: translateX(-50%);
+  z-index: 20;
+
+  filter:
+    drop-shadow(0 0 8px orange);
 }
+
 .rouletteWheel {
-  width:100%; height:100%; border-radius:50%;
-  background:conic-gradient(
-    #c00 0deg 30deg, #000 30deg 60deg,
-    #c00 60deg 90deg, #000 90deg 120deg,
-    #c00 120deg 150deg, #000 150deg 180deg,
-    #c00 180deg 210deg, #000 210deg 240deg,
-    #c00 240deg 270deg, #000 270deg 300deg,
-    #c00 300deg 330deg, #000 330deg 360deg
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+
+  background: conic-gradient(
+    #e60012 0deg 30deg,
+    #111 30deg 60deg,
+    #ff9800 60deg 90deg,
+    #111 90deg 120deg,
+    #e60012 120deg 150deg,
+    #111 150deg 180deg,
+    #ff9800 180deg 210deg,
+    #111 210deg 240deg,
+    #e60012 240deg 270deg,
+    #111 270deg 300deg,
+    #ff9800 300deg 330deg,
+    #111 330deg 360deg
   );
-  border:8px solid gold;
-  box-shadow:none;
-  transform:rotate(0deg);
-}
-.rouletteCenter {
-  position:absolute;
-  top:50%; left:50%;
-  transform:translate(-50%, -50%);
-  font-size:22px;
-  font-weight:bold;
-  color:#ffd700;
-  text-shadow:0 0 5px #000;
-  display:none;
+
+  border: 12px solid gold;
+
+  box-shadow:
+    0 0 20px gold,
+    0 0 40px orange,
+    inset 0 0 25px rgba(255,255,255,0.4);
+
+  transform: rotate(0deg);
 }
 
 /* ▼ スロット */
 .slotMachine { display:none; justify-content:center; gap:15px; margin:20px; }
 .reel {
-  width:80px; height:100px;
-  background:radial-gradient(circle,#fff,#ccc,#111);
-  color:#ffd700; font-size:36px; font-weight:900;
-  border-radius:10px; border:4px solid gold;
-  display:flex; justify-content:center; align-items:center;
-  text-shadow:0 0 5px #000;
-  transition:transform 0.1s ease;
-}
-.spinAnim { animation:reelSpin 0.18s linear infinite; }
-@keyframes reelSpin { 0%{transform:translateY(0);} 100%{transform:translateY(-15px);} }
+  width: clamp(90px, 25vw, 130px);
+  height: clamp(120px, 30vw, 160px);
 
-/* ▼ ガチャガチャ */
+  background:
+    radial-gradient(circle,#fff,#ccc,#111);
+
+  color:#ffd700;
+
+  font-size:
+    clamp(32px, 9vw, 52px);
+
+  font-weight:900;
+
+  border-radius:16px;
+  border:6px solid gold;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  text-shadow:
+    0 0 5px #000,
+    0 0 12px gold;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+
+/* =========================
+   ▼ 派手なガチャガチャ
+========================= */
+
 .gachaMachine {
-  width: 260px;
-  height: 300px;
-  margin: 20px auto;
+  width: min(88vw, 360px);
+  height: 430px;
+  margin: 25px auto;
   position: relative;
-}
-.gachaDome {
-  width: 200px;
-  height: 200px;
-  background: #eee;
-  border-radius: 50%;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
-}
-#gachaCapsules .capsule {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  position: absolute;
-}
-.gachaExit {
-  width: 80px;
-  height: 40px;
-  background: #ccc;
-  margin: 10px auto;
-  border-radius: 10px;
+  transform-origin: center bottom;
 }
 
-/* ▼ 福引き */
-.fukubikiMachine {
-  width: 260px;
-  height: 300px;
-  margin: 20px auto;
-  position: relative;
+/* ガチャ本体が激しく揺れる */
+.gachaShake {
+  animation: gachaShake 0.12s linear infinite;
 }
-.fukubikiBody {
-  width: 200px;
-  height: 200px;
-  background: #eee;
-  border-radius: 20px;
+
+@keyframes gachaShake {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(-7px, 3px) rotate(-2deg);
+  }
+
+  50% {
+    transform: translate(7px, -3px) rotate(2deg);
+  }
+
+  75% {
+    transform: translate(-5px, -2px) rotate(-1deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+/* 透明ドーム */
+.gachaDome {
+  width: 300px;
+  height: 300px;
+
+  max-width: 82vw;
+  max-height: 82vw;
+
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      rgba(255,255,255,0.95),
+      rgba(135,206,250,0.65) 55%,
+      rgba(0,123,255,0.35)
+    );
+
+  border: 8px solid #1976d2;
+  border-radius: 50%;
+
   margin: 0 auto;
+
   position: relative;
   overflow: hidden;
+
+  box-shadow:
+    inset 0 0 25px white,
+    0 0 20px #2196f3,
+    0 10px 20px rgba(0,0,0,0.25);
 }
-#fukubikiBalls .ball {
-  width: 28px;
-  height: 28px;
+
+/* カプセル */
+#gachaCapsules .capsule {
+  width: 44px;
+  height: 44px;
+
   border-radius: 50%;
+
   position: absolute;
+
+  border: 4px solid white;
+
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.35),
+    inset 0 0 8px rgba(255,255,255,0.8);
 }
-.fukubikiHandle {
-  width: 40px;
-  height: 40px;
-  background: #aaa;
+
+/* カプセルを激しく跳ねさせる */
+.capsuleShuffle {
+  animation:
+    capsuleShuffle 0.32s
+    ease-in-out infinite alternate;
+}
+
+@keyframes capsuleShuffle {
+
+  0% {
+    transform:
+      translate(-18px, 12px)
+      rotate(0deg)
+      scale(1);
+  }
+
+  25% {
+    transform:
+      translate(22px, -20px)
+      rotate(120deg)
+      scale(1.1);
+  }
+
+  50% {
+    transform:
+      translate(-10px, -30px)
+      rotate(240deg)
+      scale(0.9);
+  }
+
+  75% {
+    transform:
+      translate(28px, 15px)
+      rotate(360deg)
+      scale(1.15);
+  }
+
+  100% {
+    transform:
+      translate(-25px, 25px)
+      rotate(540deg)
+      scale(1);
+  }
+}
+
+/* 出口 */
+.gachaExit {
+  width: 130px;
+  height: 70px;
+
+  background:
+    linear-gradient(
+      #555,
+      #222
+    );
+
+  margin: 10px auto;
+
+  border: 6px solid gold;
+  border-radius: 15px;
+
+  position: relative;
+
+  box-shadow:
+    inset 0 0 15px black,
+    0 0 15px gold;
+}
+/* ▼ ガチャ当選カプセル */
+#gachaWinnerBall {
+  display: none;
+
+  width: 55px;
+  height: 55px;
+
+  position: absolute;
+  left: 50%;
+  top: -75px;
+
+  margin-left: -27px;
+
   border-radius: 50%;
-  margin: 10px auto;
+  border: 5px solid white;
+
+  box-shadow:
+    0 0 15px white,
+    0 0 25px gold;
+
+  z-index: 10;
 }
-.fukubikiExit {
-  width: 80px;
-  height: 40px;
-  background: #ccc;
-  margin: 10px auto;
+
+/* ▼ 出口へポンッと落ちる */
+.gachaBallDrop {
+  display: block !important;
+
+  animation:
+    gachaBallDrop 0.8s
+    cubic-bezier(.25,.8,.3,1.25)
+    forwards;
+}
+
+@keyframes gachaBallDrop {
+
+  0% {
+    transform:
+      translateY(-80px)
+      rotate(0deg)
+      scale(0.6);
+
+    opacity: 0;
+  }
+
+  55% {
+    transform:
+      translateY(85px)
+      rotate(360deg)
+      scale(1.2);
+
+    opacity: 1;
+  }
+
+  75% {
+    transform:
+      translateY(55px)
+      rotate(450deg)
+      scale(0.95);
+  }
+
+  100% {
+    transform:
+      translateY(65px)
+      rotate(540deg)
+      scale(1.05);
+
+    opacity: 1;
+  }
+}
+
+
+/* =========================
+   ▼ ガラガラ福引き
+========================= */
+
+.fukubikiMachine {
+  width: min(94vw, 420px);
+  height: 430px;
+  margin: 25px auto;
+  position: relative;
+}
+
+/* 台 */
+.garaStand {
+  width: 360px;
+  max-width: 90vw;
+  height: 300px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* 回転する抽選器 */
+.garaDrum {
+  width: 260px;
+  height: 260px;
+
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(0deg);
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffd700,
+      #ff9800,
+      #ff5722,
+      #ffd700
+    );
+
+  /* 八角形 */
+  clip-path: polygon(
+    30% 0%,
+    70% 0%,
+    100% 30%,
+    100% 70%,
+    70% 100%,
+    30% 100%,
+    0% 70%,
+    0% 30%
+  );
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 0 15px gold,
+    0 0 30px orange;
+
+  transform-origin: center;
+}
+
+/* 中央の「福」 */
+.garaCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: 90px;
+  height: 90px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #d50000;
+  color: white;
+
+  font-size: 52px;
+  font-weight: 900;
+
+  border: 6px solid white;
+
+  box-shadow:
+    0 0 20px white,
+    0 0 30px gold;
+}
+
+/* 軸 */
+.garaAxis {
+  position: absolute;
+
+  width: 330px;
+  height: 16px;
+
+  top: 132px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: #5d4037;
+
   border-radius: 10px;
+
+  z-index: -1;
+}
+
+/* 高速回転 */
+.garaSpinFast {
+  animation:
+    garaSpinFast 0.35s linear infinite;
+}
+
+@keyframes garaSpinFast {
+
+  from {
+    transform:
+      translateX(-50%)
+      rotate(0deg);
+  }
+
+  to {
+    transform:
+      translateX(-50%)
+      rotate(360deg);
+  }
+}
+
+/* 減速 */
+.garaSlowDown {
+  animation:
+    garaSlowDown 1.6s
+    cubic-bezier(.1,.7,.2,1)
+    forwards;
+}
+
+@keyframes garaSlowDown {
+
+  0% {
+    transform:
+      translateX(-50%)
+      rotate(0deg);
+  }
+
+  70% {
+    transform:
+      translateX(-50%)
+      rotate(900deg);
+  }
+
+  90% {
+    transform:
+      translateX(-50%)
+      rotate(1040deg);
+  }
+
+  100% {
+    transform:
+      translateX(-50%)
+      rotate(1080deg);
+  }
+}
+
+/* 停止時ガタン */
+.garaStopShock {
+  animation:
+    garaStopShock 0.4s ease-out;
+}
+
+@keyframes garaStopShock {
+
+  0% {
+    transform:
+      translateX(-50%)
+      rotate(1080deg)
+      scale(1);
+  }
+
+  30% {
+    transform:
+      translateX(-50%)
+      rotate(1065deg)
+      scale(1.08);
+  }
+
+  60% {
+    transform:
+      translateX(-50%)
+      rotate(1090deg)
+      scale(0.95);
+  }
+
+  100% {
+    transform:
+      translateX(-50%)
+      rotate(1080deg)
+      scale(1);
+  }
+}
+
+/* 玉受け */
+.garaTray {
+  width: 180px;
+  height: 90px;
+
+  margin: 5px auto;
+
+  position: relative;
+
+  background: #333;
+
+  border: 6px solid gold;
+  border-radius: 15px;
+
+  box-shadow:
+    inset 0 0 15px #000,
+    0 0 15px gold;
+}
+
+/* 当選玉 */
+.garaWinnerBall {
+  display: none;
+
+  width: 65px;
+  height: 65px;
+
+  position: absolute;
+
+  top: -90px;
+  left: 50%;
+
+  margin-left: -32px;
+
+  border-radius: 50%;
+
+  border: 5px solid white;
+
+  box-shadow:
+    0 0 15px white,
+    0 0 30px gold;
+}
+
+/* 玉がポンッと落ちる */
+.garaBallDrop {
+  display: block;
+
+  animation:
+    garaBallDrop 0.8s
+    cubic-bezier(.25,.8,.3,1.25)
+    forwards;
+}
+
+@keyframes garaBallDrop {
+
+  0% {
+    transform:
+      translateY(-80px)
+      scale(0.5);
+
+    opacity: 0;
+  }
+
+  55% {
+    transform:
+      translateY(85px)
+      scale(1.25);
+
+    opacity: 1;
+  }
+
+  75% {
+    transform:
+      translateY(55px)
+      scale(0.9);
+  }
+
+  100% {
+    transform:
+      translateY(70px)
+      scale(1.1);
+
+    opacity: 1;
+  }
 }
 /* 抽選画面を展示会向けに大型化 */
 
@@ -168,11 +645,25 @@ p{
 }
 
 #staffConfirm{
-  width: min(90vw, 500px);
-  min-height: 100px;
-  font-size: clamp(26px, 5vw, 36px);
-  font-weight: bold;
+  width: min(94vw, 600px);
+  min-height: 120px;
+  padding: 20px;
+  margin-top: 25px;
+
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: 900;
+
+  background: #28a745;
+  color: white;
+
+  border: 5px solid white;
+  border-radius: 18px;
+
+  box-shadow:
+    0 6px 15px rgba(0,0,0,0.3),
+    0 0 20px rgba(40,167,69,0.6);
 }
+
 
 #result{
   margin-top:30px !important;
@@ -189,7 +680,244 @@ p{
 .rouletteCenter{
   font-size: clamp(26px, 5vw, 38px);
 }
-#hotBanner,#rareBanner { margin-top:10px; display:none; }
+#hotBanner {
+  margin-top: 10px;
+  display: none;
+}
+/* ▼ 当選結果の登場演出 */
+@keyframes winnerPop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.winnerResult {
+  font-size: clamp(48px, 11vw, 90px);
+  font-weight: 900;
+  color: #ff5722;
+  line-height: 1.3;
+  animation: winnerPop 0.8s ease-out;
+  text-shadow:
+    0 0 10px white,
+    0 0 20px gold,
+    0 0 35px orange;
+}
+
+/* ▼ 紙吹雪 */
+
+
+@keyframes confettiFall {
+  0% {
+    transform:
+      translateY(-20px)
+      rotate(0deg);
+  }
+
+  100% {
+    transform:
+      translateY(110vh)
+      rotate(900deg);
+  }
+}
+/* =========================
+   ▼ 激レア景品専用演出
+========================= */
+/* 画面全体を覆うレア演出 */
+.rareOverlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle,
+      #fff8b0 0%,
+      #ffd700 25%,
+      #ff9800 55%,
+      #111 100%
+    );
+
+  z-index: 10000;
+
+  animation:
+    rareOverlayFlash 0.8s ease-out;
+}
+/* 激レア画面より手前に紙吹雪を表示 */
+.confetti {
+  position: fixed;
+  top: -20px;
+  width: 12px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 10001;
+  animation: confettiFall linear forwards;
+}
+
+/* 登場時フラッシュ */
+@keyframes rareOverlayFlash {
+
+  0% {
+    background: white;
+    opacity: 0;
+  }
+
+  30% {
+    background: #fff700;
+    opacity: 1;
+  }
+
+  60% {
+    background: #ff9800;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 激レア文字 */
+.rareTitle {
+  color: white;
+
+  font-size:
+    clamp(52px, 15vw, 110px);
+
+  font-weight: 900;
+
+  text-align: center;
+
+  animation:
+    rareTitlePop 0.8s
+    cubic-bezier(.2,1.8,.4,1);
+
+  text-shadow:
+    0 0 10px white,
+    0 0 20px gold,
+    0 0 40px orange,
+    0 0 70px red;
+}
+
+@keyframes rareTitlePop {
+
+  0% {
+    transform:
+      scale(0.1)
+      rotate(-12deg);
+
+    opacity: 0;
+  }
+
+  60% {
+    transform:
+      scale(1.35)
+      rotate(5deg);
+  }
+
+  100% {
+    transform:
+      scale(1)
+      rotate(0deg);
+
+    opacity: 1;
+  }
+}
+
+/* 激レア景品名 */
+.rarePrizeName {
+  margin-top: 25px;
+
+  padding: 20px 30px;
+
+  color: #d50000;
+
+  background: white;
+
+  border: 8px solid gold;
+  border-radius: 25px;
+
+  font-size:
+    clamp(34px, 9vw, 70px);
+
+  font-weight: 900;
+
+  text-align: center;
+
+  box-shadow:
+    0 0 20px white,
+    0 0 40px gold,
+    0 0 70px orange;
+
+  animation:
+    rarePrizePulse 0.8s
+    ease-in-out infinite alternate;
+}
+
+@keyframes rarePrizePulse {
+
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
+
+/* 背景をキラキラさせる */
+.rareOverlay::before,
+.rareOverlay::after {
+  content: "✨";
+
+  position: absolute;
+
+  font-size: 80px;
+
+  animation:
+    rareSparkle 0.8s
+    ease-in-out infinite alternate;
+}
+
+.rareOverlay::before {
+  top: 10%;
+  left: 8%;
+}
+
+.rareOverlay::after {
+  right: 8%;
+  bottom: 10%;
+}
+
+@keyframes rareSparkle {
+
+  from {
+    transform:
+      scale(0.7)
+      rotate(0deg);
+
+    opacity: 0.5;
+  }
+
+  to {
+    transform:
+      scale(1.4)
+      rotate(30deg);
+
+    opacity: 1;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -203,10 +931,10 @@ p{
 <button
   id="staffConfirm"
   style="display:none;">
-  説明員が確認しました
+  景品をお渡ししました
 </button>
-
  
+
 <!-- ▼ ルーレット -->
 <div class="rouletteContainer" id="rouletteBox">
   <div class="roulettePointer"></div>
@@ -229,20 +957,38 @@ p{
     <div class="gachaDome">
       <div id="gachaCapsules"></div>
     </div>
-    <div class="gachaExit"></div>
+    <div class="gachaExit">
+      <div id="gachaWinnerBall"></div>
+    </div>
   </div>
 </div>
 
-<!-- ▼ 福引き -->
+<!-- ▼ ガラガラ福引き -->
 <div id="fukubikiEffect" style="display:none;">
+
   <div class="fukubikiMachine">
-    <div class="fukubikiBody">
-      <div id="fukubikiBalls"></div>
+
+    <div class="garaStand">
+
+      <div class="garaDrum" id="garaDrum">
+        <div class="garaCenter">福</div>
+      </div>
+
+      <div class="garaAxis"></div>
+
     </div>
-    <div class="fukubikiHandle"></div>
-    <div class="fukubikiExit"></div>
+
+    <div class="garaTray">
+      <div
+        id="winnerBall"
+        class="garaWinnerBall">
+      </div>
+    </div>
+
   </div>
+
 </div>
+
 
 </body>
 <script type="module">
@@ -265,7 +1011,7 @@ const db = getFirestore(app);
 /* ▼ 今回の抽選情報 */
 let currentSurveyDocRef = null;
 let currentEntryNumber = null;
-let currentPrize = "";
+
 let currentStockId = "";
 /* ▼ 抽選中フラグ */
 let drawing = false;
@@ -273,23 +1019,23 @@ let drawing = false;
 const prizeData = [
   {
     id: "microSD",
-    name: "マイクロSDカード"
+    name: "microSDカード"
   },
   {
     id: "bottle",
-    name: "水筒"
+    name: "ハイドロフラスク水筒"
   },
   {
     id: "tote",
-    name: "トートバッグ"
+    name: "付箋布バッグ"
   },
   {
     id: "memo500",
-    name: "SDカード型メモ"
+    name: "microSD型メモ帳"
   },
   {
     id: "memo100",
-    name: "SDカード型付箋"
+    name: "microSD型付箋"
   }
 ];
  
@@ -313,18 +1059,7 @@ async function getStock(id){
   return s.exists()? s.data().count : 0;
 }
 
-/* ▼ 在庫トランザクション（安全版） */
-async function decreaseStockSafe(id){
-  const ref = doc(db,"stock",id);
-  return await runTransaction(db, async (t)=>{
-    const snap = await t.get(ref);
-    if(!snap.exists()) return false;
-    const count = snap.data().count;
-    if(count <= 0) return false;
-    t.update(ref,{count:count-1});
-    return true;
-  });
-}
+
 /* ▼ 在庫数に比例して景品を選び、1個予約する */
 async function reserveWeightedPrize(){
 
@@ -334,7 +1069,7 @@ async function reserveWeightedPrize(){
 
     for(const item of prizeData){
 
-      const stockRef = doc(db, "stock", item.id);
+      const stockRef = doc(db,"stock",item.id);
       const stockSnap = await transaction.get(stockRef);
 
       if(!stockSnap.exists()){
@@ -427,91 +1162,370 @@ function hideAllEffects(){
   document.getElementById("fukubikiEffect").style.display="none";
   document.getElementById("staffConfirm").style.display="none";
 }
+/* ▼ 紙吹雪 */
+function launchConfetti(){
 
-/* ▼ ルーレット */
-function playRouletteVegas(prize){
-  hideAllEffects();
-  const wheel=document.getElementById("rouletteWheel");
-  const center=document.getElementById("rouletteCenter");
-  const result=document.getElementById("result");
+  document
+    .querySelectorAll(".confetti")
+    .forEach(item => item.remove());
 
-  document.getElementById("rouletteBox").style.display="block";
-  document.querySelector(".roulettePointer").style.display="block";
-  result.innerHTML="🎰 ルーレット回転中…";
+  const colors = [
+    "#ff1744",
+    "#ffd600",
+    "#00e676",
+    "#2979ff",
+    "#d500f9",
+    "#ff9100"
+  ];
 
-  const angles={
-    "マイクロSDカード":30,
-    "水筒":90,
-    "トートバッグ":150,
-    "SDカード型メモ":210,
-    "SDカード型付箋":270,
-    "景品終了":330
-  };
+  for(let i = 0; i < 140; i++){
 
-  const target=angles[prize] ?? Math.floor(Math.random()*360);
+    const confetti =
+      document.createElement("div");
 
-  wheel.style.transition="none";
-  wheel.style.transform="rotate(0deg)";
-  wheel.style.boxShadow="none";
-  center.style.display="none";
+    confetti.className = "confetti";
 
-  setTimeout(()=>{
-    wheel.style.transition="transform 4.5s cubic-bezier(0.05,0.9,0.1,1)";
-    wheel.style.transform=`rotate(${360*8+target}deg)`;
+    confetti.style.left =
+      Math.random() * 100 + "vw";
 
-    setTimeout(()=>{
-      result.innerHTML="🎉 抽選結果： "+prize;
-      document.getElementById("staffConfirm")
-        .style.display = "inline-block";
-      wheel.style.boxShadow="0 -35px 25px gold";
-      center.textContent=prize;
-      center.style.display="block";
-    },4500);
-  },50);
+    confetti.style.background =
+      colors[
+        Math.floor(
+          Math.random() * colors.length
+        )
+      ];
+
+    confetti.style.animationDuration =
+      (2 + Math.random() * 2) + "s";
+
+    confetti.style.animationDelay =
+      (Math.random() * 0.8) + "s";
+
+    document.body.appendChild(confetti);
+
+    setTimeout(() => {
+      confetti.remove();
+    }, 5000);
+  }
 }
 
-/* ▼ スロット */
-function playSlotEffect(prize){
-  hideAllEffects();
-  const r1=document.getElementById("reel1");
-  const r2=document.getElementById("reel2");
-  const r3=document.getElementById("reel3");
-  const result=document.getElementById("result");
+/* ▼ 豪華な抽選結果表示 */
+function showPrizeResult(prize){
 
-  document.getElementById("slotBox").style.display="flex";
-  result.innerHTML="🎰 スロット回転中…";
+  const result =
+    document.getElementById("result");
 
-  const sym=["7","BAR","★"];
+  result.innerHTML = `
+    <div class="winnerResult">
+      🎉 抽選結果 🎉
+      <br>
+      ${prize}
+    </div>
+  `;
 
-  function spin(reel){ reel.classList.add("spinAnim"); }
+  launchConfetti();
+}
+ /* ▼ 激レア景品判定 */
+function isRarePrize(prize){
+  return (
+    prize === "microSDカード" ||
+    prize === "ハイドロフラスク水筒"
+  );
+}
 
-  function stopReel(reel,time){
-    setTimeout(()=>{
-      reel.classList.remove("spinAnim");
-      let shakes=0;
-      const shakeInt=setInterval(()=>{
-        reel.style.transform=`translateY(${(shakes%2===0)?'-10px':'10px'})`;
-        shakes++;
-        if(shakes>6){
-          clearInterval(shakeInt);
-          reel.style.transform="scale(1.2)";
-          reel.innerHTML=sym[Math.floor(Math.random()*sym.length)];
-          setTimeout(()=>reel.style.transform="scale(1)",120);
-        }
-      },60);
-    },time);
+
+/* ▼ 激レア専用演出 */
+function showRarePrizeResult(prize){
+
+  /* すでに表示されていたら削除 */
+  const oldOverlay =
+    document.querySelector(".rareOverlay");
+
+  if(oldOverlay){
+    oldOverlay.remove();
   }
 
-  spin(r1); spin(r2); spin(r3);
-  stopReel(r1,1600);
-  stopReel(r2,2200);
-  stopReel(r3,2800);
+  /* 画面全体を覆う演出を作成 */
+  const overlay =
+    document.createElement("div");
 
-  setTimeout(()=>{
-    result.innerHTML="🎉 抽選結果： "+prize;
-    document.getElementById("staffConfirm")
+  overlay.className = "rareOverlay";
+
+  overlay.innerHTML = `
+    <div class="rareTitle">
+      ✨ 激レア!! ✨
+    </div>
+
+    <div class="rarePrizeName">
+      ${prize}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  /* 紙吹雪 */
+  launchConfetti();
+
+  /* 2.8秒後にレア画面を消す */
+  setTimeout(() => {
+
+    overlay.remove();
+
+    /* 通常の結果画面へ切り替える */
+    showPrizeResult(prize);
+
+    document
+      .getElementById("staffConfirm")
       .style.display = "inline-block";
-  },3000);
+
+  }, 2800);
+}
+
+/* ▼ 派手なルーレット */
+function playRouletteVegas(prize){
+
+  hideAllEffects();
+
+  const wheel =
+    document.getElementById("rouletteWheel");
+
+  const center =
+    document.getElementById("rouletteCenter");
+
+  const result =
+    document.getElementById("result");
+
+  const box =
+    document.getElementById("rouletteBox");
+
+  const pointer =
+    document.querySelector(".roulettePointer");
+
+  box.style.display = "block";
+  pointer.style.display = "block";
+
+  center.style.display = "none";
+
+  result.innerHTML =
+    "🎰 ルーレットスタート！！";
+
+  const angles = {
+    "microSDカード": 30,
+    "ハイドロフラスク水筒": 90,
+    "付箋布バッグ": 150,
+    "microSD型メモ帳": 210,
+    "microSD型付箋": 270,
+    "景品終了": 330
+  };
+
+  const target =
+    angles[prize] ??
+    Math.floor(Math.random() * 360);
+
+  /* 前回の状態をリセット */
+  wheel.style.transition = "none";
+  wheel.style.transform = "rotate(0deg)";
+
+  void wheel.offsetWidth;
+
+  /* 高速回転開始 */
+  wheel.style.transition =
+    "transform 4.8s cubic-bezier(0.12, 0.65, 0.18, 1)";
+
+  wheel.style.transform =
+    `rotate(${360 * 12 + target}deg)`;
+
+  /* 中盤メッセージ */
+  setTimeout(() => {
+
+    result.innerHTML =
+      "🔥 まだまだ回る！！ 🔥";
+
+  }, 1400);
+
+  /* 停止直前 */
+  setTimeout(() => {
+
+    result.innerHTML =
+      "✨ どこで止まる！？ ✨";
+
+  }, 3300);
+
+  /* 停止 */
+  setTimeout(() => {
+
+    result.innerHTML =
+      "💥 STOP！！ 💥";
+
+    wheel.style.filter =
+      "brightness(1.5)";
+
+  }, 4800);
+
+  /* 景品発表 */
+  setTimeout(() => {
+
+    wheel.style.filter = "";
+
+    center.textContent = prize;
+    center.style.display = "block";
+
+    if(isRarePrize(prize)){
+
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
+    }
+
+  }, 5200);
+}
+/* ▼ 派手なスロット */
+function playSlotEffect(prize){
+
+  hideAllEffects();
+
+  const r1 = document.getElementById("reel1");
+  const r2 = document.getElementById("reel2");
+  const r3 = document.getElementById("reel3");
+  const result = document.getElementById("result");
+
+  document.getElementById("slotBox")
+    .style.display = "flex";
+
+  result.innerHTML =
+    "🎰 スロット回転中…";
+
+  const symbols = [
+    "7",
+    "BAR",
+    "★",
+    "💎",
+    "🔥"
+  ];
+
+  /* ▼ リール回転開始 */
+  function startReel(reel){
+
+    reel.style.background =
+      "radial-gradient(circle,#fff,#ccc,#111)";
+
+    reel.style.boxShadow =
+      "0 0 20px gold, 0 0 35px orange";
+
+    return setInterval(() => {
+
+      reel.textContent =
+        symbols[
+          Math.floor(
+            Math.random() * symbols.length
+          )
+        ];
+
+    }, 70);
+  }
+
+  const timer1 = startReel(r1);
+  const timer2 = startReel(r2);
+  const timer3 = startReel(r3);
+
+  /* ▼ 左停止 */
+  setTimeout(() => {
+
+    clearInterval(timer1);
+
+    r1.textContent = "7";
+
+    r1.style.transform =
+      "scale(1.4)";
+
+    r1.style.background =
+      "radial-gradient(circle,#fff700,#ff9800,#111)";
+
+    setTimeout(() => {
+      r1.style.transform = "scale(1)";
+    }, 300);
+
+  }, 1400);
+
+
+  /* ▼ 中央停止 */
+  setTimeout(() => {
+
+    clearInterval(timer2);
+
+    r2.textContent = "7";
+
+    r2.style.transform =
+      "scale(1.4)";
+
+    r2.style.background =
+      "radial-gradient(circle,#fff700,#ff9800,#111)";
+
+    setTimeout(() => {
+      r2.style.transform = "scale(1)";
+    }, 300);
+
+  }, 2200);
+
+
+  /* ▼ 右停止 */
+  setTimeout(() => {
+
+    clearInterval(timer3);
+
+    r3.textContent = "7";
+
+    r3.style.transform =
+      "scale(1.4)";
+
+    r3.style.background =
+      "radial-gradient(circle,#fff700,#ff9800,#111)";
+
+    setTimeout(() => {
+      r3.style.transform = "scale(1)";
+    }, 300);
+
+  }, 3000);
+
+
+  /* ▼ 777完成 */
+  setTimeout(() => {
+
+    r1.style.boxShadow =
+      "0 0 40px gold";
+
+    r2.style.boxShadow =
+      "0 0 40px gold";
+
+    r3.style.boxShadow =
+      "0 0 40px gold";
+
+  }, 3200);
+
+
+  /* ▼ 景品発表 */
+  setTimeout(() => {
+
+    if(isRarePrize(prize)){
+
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
+    }
+
+  }, 3600);
 }
 
 /* ▼ ガチャガチャ完全版 */
@@ -523,121 +1537,387 @@ const prizeColorMap = {
   memo100: "white"
 };
 
+/* ▼ 派手なガチャガチャ */
 function playGachagachaEffect(prize){
+
   hideAllEffects();
-  document.getElementById("staffConfirm")
-    .style.display = "none";
-  const box=document.getElementById("gachaEffect");
-  box.style.display="block";
 
-  const area=document.getElementById("gachaCapsules");
-  area.innerHTML="";
+  const box =
+    document.getElementById("gachaEffect");
 
-  const color=prizeColorMap[
-    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
-      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
+  const machine =
+    box.querySelector(".gachaMachine");
+
+  const area =
+    document.getElementById("gachaCapsules");
+
+  const result =
+    document.getElementById("result");
+  const winnerBall =
+    document.getElementById("gachaWinnerBall");
+
+  /* 前回の当選カプセルをリセット */
+  winnerBall.classList.remove(
+    "gachaBallDrop"
+  );
+
+  winnerBall.style.display = "none";
+  winnerBall.style.background = "";
+  box.style.display = "block";
+
+  result.innerHTML =
+    "🎯 ガチャ抽選中…";
+
+  area.innerHTML = "";
+
+  /* 景品ごとの色 */
+  const prizeIdMap = {
+    "microSDカード": "microSD",
+    "ハイドロフラスク水筒": "bottle",
+    "付箋布バッグ": "tote",
+    "microSD型メモ帳": "memo500",
+    "microSD型付箋": "memo100"
+  };
+
+  const winnerColor =
+    prizeColorMap[
+      prizeIdMap[prize]
+    ] || "gray";
+
+
+  /* ▼ カプセル生成 */
+  const colors = [
+    "red",
+    "blue",
+    "green",
+    "gold",
+    "orange",
+    "purple",
+    "pink",
+    "white"
   ];
 
-  for(let i=0;i<8;i++){
-    const c=document.createElement("div");
-    c.className="capsule";
-    c.style.background=color;
-    c.style.left=Math.random()*160+"px";
-    c.style.top=Math.random()*160+"px";
-    c.style.transition="transform 1.2s ease";
-    area.appendChild(c);
+  for(let i = 0; i < 12; i++){
+
+    const capsule =
+      document.createElement("div");
+
+    capsule.className =
+      "capsule capsuleShuffle";
+
+    capsule.style.background =
+      colors[
+        Math.floor(
+          Math.random() * colors.length
+        )
+      ];
+
+    capsule.style.left =
+      (35 + Math.random() * 200) + "px";
+
+    capsule.style.top =
+      (35 + Math.random() * 190) + "px";
+
+    /*
+      カプセルごとに少しタイミングを
+      ずらして動きをバラバラにする
+    */
+    capsule.style.animationDelay =
+      (Math.random() * 0.25) + "s";
+
+    area.appendChild(capsule);
   }
 
-  for(const c of area.children){
-    c.style.transform="rotate(720deg)";
-  }
 
+  /* ▼ 本体ブルブル開始 */
+  machine.classList.add("gachaShake");
+
+
+  /* =========================
+     2.3秒後
+     シャッフル停止
+  ========================= */
   setTimeout(() => {
-    const last = area.children[0];
 
-    if(last){
-      last.style.transition = "top 0.8s ease, left 0.8s ease";
-      last.style.top = "240px";
-      last.style.left = "90px";
+    machine.classList.remove(
+      "gachaShake"
+    );
+
+    const capsules =
+      area.querySelectorAll(".capsule");
+
+    capsules.forEach(capsule => {
+
+      capsule.classList.remove(
+        "capsuleShuffle"
+      );
+
+    });
+
+    result.innerHTML =
+      "✨ カプセル決定！ ✨";
+
+  }, 2300);
+
+
+  /* =========================
+     当選カプセルを落とす
+  ========================= */
+  setTimeout(() => {
+
+    const capsules =
+      area.querySelectorAll(".capsule");
+
+    if(capsules.length === 0){
+      if(isRarePrize(prize)){
+
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
     }
 
-    setTimeout(() => {
-      document.getElementById("result").innerHTML =
-        "🎉 抽選結果： " + prize;
+      return;
+    }
 
-      document.getElementById("staffConfirm").style.display =
-        "inline-block";
-    }, 900);
+    /* ▼ ドーム内の当選カプセルを選ぶ */
+    const winner =
+      capsules[
+        Math.floor(
+          Math.random() *
+          capsules.length
+        )
+      ];
 
-  }, 1200);
+    /* 一瞬だけ当選色にする */
+    winner.style.background =
+      winnerColor;
+
+    /* ▼ 台座側の当選カプセルを表示 */
+    winnerBall.style.background =
+      winnerColor;
+
+    winnerBall.style.display =
+      "block";
+
+    /* アニメーションを確実に再スタート */
+    void winnerBall.offsetWidth;
+
+    winnerBall.classList.add(
+      "gachaBallDrop"
+    );
+
+  }, 2700);
+
+
+  /* =========================
+     景品発表
+  ========================= */
+  setTimeout(() => {
+
+    if(isRarePrize(prize)){
+
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
+    }
+
+  }, 3900);
 }
-
-/* ▼ 福引き完全版 */
+/* ▼ ガラガラ福引き演出 */
 function playFukubikiEffect(prize){
+
   hideAllEffects();
-  document.getElementById("staffConfirm")
-    .style.display = "none";
-  const box=document.getElementById("fukubikiEffect");
-  box.style.display="block";
 
-  const area=document.getElementById("fukubikiBalls");
-  area.innerHTML="";
+  const box =
+    document.getElementById("fukubikiEffect");
 
-  const color=prizeColorMap[
-    { "マイクロSDカード":"microSD", "水筒":"bottle", "トートバッグ":"tote",
-      "SDカード型メモ":"memo500", "SDカード型付箋":"memo100" }[prize]
-  ];
+  const drum =
+    document.getElementById("garaDrum");
 
-  for(let i=0;i<6;i++){
-    const b=document.createElement("div");
-    b.className="ball";
-    b.style.background=color;
-    b.style.left=Math.random()*160+"px";
-    b.style.top=Math.random()*160+"px";
-    b.style.transition="transform 1.2s ease";
-    area.appendChild(b);
+  const ball =
+    document.getElementById("winnerBall");
+
+  const result =
+    document.getElementById("result");
+
+  if(!box || !drum || !ball || !result){
+    console.error(
+      "福引き演出に必要な要素が見つかりません"
+    );
+
+    alert(
+      "福引き演出の読み込みに失敗しました。"
+    );
+
+    return;
   }
 
-  const handle=document.querySelector(".fukubikiHandle");
-  handle.style.transition="transform 1.2s ease";
-  handle.style.transform="rotate(720deg)";
+  box.style.display = "block";
 
-  for(const b of area.children){
-    b.style.transform="rotate(720deg)";
-  }
+  /* 前回の演出状態をリセット */
+  drum.classList.remove(
+    "garaSpinFast",
+    "garaSlowDown",
+    "garaStopShock"
+  );
+
+  ball.classList.remove(
+    "garaBallDrop"
+  );
+
+  ball.style.display = "none";
+
+  /*
+    クラスを付け直したときに
+    アニメーションを再実行させる
+  */
+  void drum.offsetWidth;
+  void ball.offsetWidth;
+
+  /* 景品ごとの玉の色 */
+  const prizeIdMap = {
+    "microSDカード": "microSD",
+    "ハイドロフラスク水筒": "bottle",
+    "付箋布バッグ": "tote",
+    "microSD型メモ帳": "memo500",
+    "microSD型付箋": "memo100"
+  };
+
+  const winnerColor =
+    prizeColorMap[
+      prizeIdMap[prize]
+    ] || "gray";
+
+  ball.style.background =
+    winnerColor;
+
+
+  /* ① 高速回転 */
+
+  result.innerHTML =
+    "🎯 ガラガラ抽選中…";
+
+  drum.classList.add(
+    "garaSpinFast"
+  );
+
+
+  /* ② 高速回転から減速 */
 
   setTimeout(() => {
-    const last = area.children[0];
 
-    if(last){
-      last.style.transition = "top 0.8s ease, left 0.8s ease";
-      last.style.top = "220px";
-      last.style.left = "85px";
+    drum.classList.remove(
+      "garaSpinFast"
+    );
+
+    /*
+      高速回転終了時の状態を
+      一度再描画してから減速開始
+    */
+    void drum.offsetWidth;
+
+    drum.classList.add(
+      "garaSlowDown"
+    );
+
+    result.innerHTML =
+      "🔥 まもなく決定！ 🔥";
+
+  }, 2200);
+
+
+  /* ③ ガタン！ */
+
+  setTimeout(() => {
+
+    drum.classList.remove(
+      "garaSlowDown"
+    );
+
+    void drum.offsetWidth;
+
+    drum.classList.add(
+      "garaStopShock"
+    );
+
+    result.innerHTML =
+      "💥 ガタン！！ 💥";
+
+  }, 3800);
+
+
+  /* ④ 当選玉が出る */
+
+  setTimeout(() => {
+
+    ball.style.display = "block";
+
+    void ball.offsetWidth;
+
+    ball.classList.add(
+      "garaBallDrop"
+    );
+
+    result.innerHTML =
+      "✨ 当選玉が出ました！ ✨";
+
+  }, 4250);
+
+
+  /* ⑤ 景品発表 */
+
+  setTimeout(() => {
+
+    if(isRarePrize(prize)){
+
+      showRarePrizeResult(prize);
+
+    }else{
+
+      showPrizeResult(prize);
+
+      document
+        .getElementById("staffConfirm")
+        .style.display = "inline-block";
     }
 
-    setTimeout(() => {
-      document.getElementById("result").innerHTML =
-        "🎉 抽選結果： " + prize;
-
-      document.getElementById("staffConfirm").style.display =
-        "inline-block";
-    }, 900);
-
-  }, 1200);
+  }, 5400);
 }
 
-/* ▼ ランダム演出（あみだ削除済） */
+/* ▼ 4種類からランダム演出 */
 function playRandomEffect(prize){
+
   hideAllEffects();
-  const effects=[
+
+  const effects = [
     playRouletteVegas,
     playSlotEffect,
     playGachagachaEffect,
     playFukubikiEffect
   ];
-  const f=effects[Math.floor(Math.random()*effects.length)];
-  f(prize);
+
+  const selectedEffect =
+    effects[
+      Math.floor(
+        Math.random() * effects.length
+      )
+    ];
+
+  selectedEffect(prize);
 }
+
 
 /* ▼ entryNumber 自動採番（安全版） */
 async function getNextEntryNumber(){
@@ -669,13 +1949,13 @@ document.getElementById("start").addEventListener("click", async () => {
   if(!selectedPrize){
 
     prize = "景品終了";
-    currentPrize = "景品終了";
+
     currentStockId = "";
 
   }else{
 
     prize = selectedPrize.name;
-    currentPrize = selectedPrize.name;
+
     currentStockId = selectedPrize.id;
 
     await checkHot(currentStockId);
@@ -778,8 +2058,9 @@ document.getElementById("staffConfirm")
       button.textContent = "確認済み";
       button.style.background = "#28a745";
 
+
       alert(
-        "説明員が確認しました（番号: " +
+        "景品のお渡しを確認しました（番号: " +
         currentEntryNumber +
         "）"
       );
@@ -788,10 +2069,12 @@ document.getElementById("staffConfirm")
       console.error(error);
 
       button.disabled = false;
-      button.textContent = "説明員が確認しました";
+      button.textContent = "景品をお渡ししました";
 
       alert("確認処理に失敗しました。");
     }
   });
+
+
 </script>
 </html>
