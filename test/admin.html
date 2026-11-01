@@ -72,6 +72,7 @@
         <th>自由記述</th>
         <th>景品</th>
         <th>確認済み</th>
+        <th>予約状態／操作</th>
         <th>回答日時</th>
       </tr>
     </thead>
@@ -117,8 +118,16 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, setDoc } 
-  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBh1hBHGUJmYyyLq-CIRRuWJiDDb5xZpCM",
@@ -248,7 +257,136 @@ document.getElementById("addStockBtn")
     await loadStock();
   });
 
+/* ▼ 個別の景品予約を解除 */
+async function releaseReservation(surveyId){
 
+  const approved = confirm(
+    "この回答の景品予約を解除しますか？\n" +
+    "景品の実在庫数は減りません。"
+  );
+
+  if(!approved){
+    return;
+  }
+
+  try {
+
+    await runTransaction(
+      db,
+      async transaction => {
+
+        const surveyRef =
+          doc(
+            db,
+            "survey_test",
+            surveyId
+          );
+
+        const surveySnap =
+          await transaction.get(
+            surveyRef
+          );
+
+        if(!surveySnap.exists()){
+          throw new Error(
+            "アンケートデータが見つかりません。"
+          );
+        }
+
+        const surveyData =
+          surveySnap.data();
+
+        if(surveyData.confirmed){
+          throw new Error(
+            "すでに景品受け渡し済みです。"
+          );
+        }
+
+        if(surveyData.reservationReleased){
+          throw new Error(
+            "この予約はすでに解除されています。"
+          );
+        }
+
+        if(
+          !surveyData.reserved ||
+          !surveyData.stockId
+        ){
+          throw new Error(
+            "解除できる予約がありません。"
+          );
+        }
+
+        const stockRef =
+          doc(
+            db,
+            "stock_test",
+            surveyData.stockId
+          );
+
+        const stockSnap =
+          await transaction.get(
+            stockRef
+          );
+
+        if(!stockSnap.exists()){
+          throw new Error(
+            "景品の在庫データが見つかりません。"
+          );
+        }
+
+        const stockData =
+          stockSnap.data();
+
+        const reserved =
+          Number(
+            stockData.reserved || 0
+          );
+
+        if(reserved <= 0){
+          throw new Error(
+            "在庫側に予約数が残っていません。"
+          );
+        }
+
+        /* 在庫数は変えず予約数だけ減らす */
+        transaction.update(
+          stockRef,
+          {
+            reserved: reserved - 1
+          }
+        );
+
+        /* アンケートへ解除履歴を残す */
+        transaction.update(
+          surveyRef,
+          {
+            reserved: false,
+            reservationReleased: true,
+            reservationReleasedAt:
+              new Date()
+          }
+        );
+      }
+    );
+
+    alert(
+      "この回答の景品予約を解除しました。"
+    );
+
+    await loadSurvey();
+    await loadStock();
+
+  } catch(error){
+
+    console.error(error);
+
+    alert(
+      error.message ||
+      "予約解除に失敗しました。"
+    );
+  }
+}
 /* ▼ アンケート一覧 */
 async function loadSurvey() {
 
@@ -265,8 +403,13 @@ async function loadSurvey() {
   /* Firestoreデータを配列へ */
   const surveyData = [];
 
-  snapshot.forEach(doc => {
-    surveyData.push(doc.data());
+  snapshot.forEach(snapshotDoc => {
+
+    surveyData.push({
+      documentId: snapshotDoc.id,
+      ...snapshotDoc.data()
+    });
+
   });
 
   /* ▼ 現在選択されている並び順 */
@@ -374,6 +517,24 @@ async function loadSurvey() {
 
         <td>
           ${d.confirmed ? "○" : "×"}
+        </td>
+
+        <td>
+          ${
+            d.confirmed
+              ? "受け渡し済み"
+              : d.reservationReleased
+                ? "解除済み"
+                : d.reserved && d.stockId
+                  ? `
+                    <button
+                      class="releaseBtn"
+                      onclick="releaseReservation('${d.documentId}')">
+                      予約解除
+                    </button>
+                  `
+                  : "予約なし"
+          }
         </td>
 
         <td>
@@ -538,7 +699,8 @@ loadStock();
 
 /* ▼ changeStock をグローバル公開 */
 window.changeStock = changeStock;
-
+window.releaseReservation =
+  releaseReservation;
 </script>
 
 </body>
