@@ -315,6 +315,74 @@ Q7 印象に残ったもの
 </form>
 
 <script>
+  /* ▼ 本番用：今日の日付を取得 */
+function getTodayKey(){
+
+  const now = new Date();
+
+  const year = now.getFullYear();
+
+  const month =
+    String(now.getMonth() + 1)
+      .padStart(2, "0");
+
+  const day =
+    String(now.getDate())
+      .padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+
+/* ▼ 本日の参加済みチェック */
+function checkTodayParticipation(){
+
+  const participatedDate =
+    localStorage.getItem(
+      "lotteryParticipatedDate"
+    );
+
+  const today =
+    getTodayKey();
+
+  if(participatedDate === today){
+
+    const code = prompt(
+      "本日の抽選にはすでに参加済みです。\n\n" +
+      "係員が再参加を許可する場合は、" +
+      "係員用コードを入力してください。\n\n" +
+      "キャンセルすると入口へ戻ります。"
+    );
+
+    /* ▼ 係員用アンロックコード */
+    if(code === "2026"){
+
+      localStorage.removeItem(
+        "lotteryParticipatedDate"
+      );
+
+      sessionStorage.removeItem(
+        "drawCompleted"
+      );
+
+      sessionStorage.removeItem(
+        "survey"
+      );
+
+      alert(
+        "参加制限を解除しました。\n" +
+        "もう一度アンケートから参加できます。"
+      );
+
+      return;
+    }
+
+    location.replace("index.html");
+  }
+}
+
+checkTodayParticipation();
+
 /* ▼ 抽選済み状態で戻ってきた場合は入口へ戻す */
 function checkAlreadyDrawn(){
   if(sessionStorage.getItem("drawCompleted") === "true"){
