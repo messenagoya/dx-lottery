@@ -901,31 +901,7 @@ p{
     opacity: 1;
   }
 }
-#rareTestBtn {
-  width: min(90vw, 500px);
-  min-height: 80px;
-  margin: 20px auto;
 
-  font-size: 26px;
-  font-weight: 900;
-
-  color: white;
-
-  background:
-    linear-gradient(
-      135deg,
-      #ff9800,
-      #ffd700,
-      #ff5722
-    );
-
-  border: 5px solid white;
-  border-radius: 18px;
-
-  box-shadow:
-    0 0 15px gold,
-    0 0 30px orange;
-}
 </style>
 </head>
 <body>
@@ -947,11 +923,7 @@ p{
   style="display:none;">
   🔄 もう一度テストする
 </button>
-<button
-  id="rareTestBtn"
-  style="display:block;">
-  ✨ 激レア演出テスト
-</button>
+
 <!-- ▼ ルーレット -->
 <div class="rouletteContainer" id="rouletteBox">
   <div class="roulettePointer"></div>
@@ -2079,15 +2051,6 @@ document.getElementById("retryTest")
 
     location.replace("index.html");
   });
-/* ▼ テスト版：激レア演出だけ確認 */
-document
-  .getElementById("rareTestBtn")
-  .addEventListener("click", () => {
 
-    showRarePrizeResult(
-      "microSDカード"
-    );
-
-  });
 </script>
 </html>
